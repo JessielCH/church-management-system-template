@@ -12,7 +12,10 @@ generator client {
 enum Role {
   ADMIN
   PASTOR
+  COORDINADOR
+  SECRETARIA
   LEADER
+  MULTIMEDIA
 }
 
 enum MemberStatus {
@@ -38,6 +41,17 @@ enum EventType {
   MINISTRY
   TEACHING
   OUTREACH
+}
+
+enum TicketCategory {
+  WORSHIP_SONG // Alabanzas y letras para proyectar
+  MEDIA_REQUEST // Video, anuncio, gráfico semanal
+}
+
+enum TicketStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
 }
 
 model User {
@@ -97,4 +111,16 @@ model Event {
   location  String
   type      EventType @default(SERVICE)
   createdAt DateTime  @default(now())
+}
+
+model MultimediaTicket {
+  id          String         @id @default(uuid())
+  title       String
+  category    TicketCategory @default(WORSHIP_SONG)
+  description String?
+  requestedBy String
+  status      TicketStatus   @default(PENDING)
+  eventDate   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
