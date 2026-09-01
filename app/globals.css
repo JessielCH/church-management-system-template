@@ -447,6 +447,20 @@ body {
     .ticket-card-item {
         padding: 16px;
     }
+
+    .dashboard-grid {
+        grid-template-columns: 1fr !important;
+        gap: 16px;
+    }
+
+    .search-bar {
+        width: 100%;
+        max-width: 200px;
+    }
+    
+    .kpi-grid {
+        grid-template-columns: 1fr !important;
+    }
 }
 
 

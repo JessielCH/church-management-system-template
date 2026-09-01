@@ -147,34 +147,38 @@ export default function CalendarioPage() {
           </button>
         </div>
 
-        {/* Calendar Grid */}
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(7, 1fr)', 
-          gap: '8px', 
-          borderBottom: '1px solid var(--borde)', 
-          paddingBottom: '12px',
-          marginBottom: '12px',
-          textAlign: 'center',
-          fontWeight: '700',
-          color: '#6b7280',
-          fontSize: '0.9rem'
-        }}>
-          <div>Dom</div>
-          <div>Lun</div>
-          <div>Mar</div>
-          <div>Mié</div>
-          <div>Jue</div>
-          <div>Vie</div>
-          <div>Sáb</div>
-        </div>
+        <div style={{ overflowX: 'auto', paddingBottom: '16px' }}>
+          <div style={{ minWidth: '700px' }}>
+            {/* Calendar Grid Header */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(7, 1fr)', 
+              gap: '8px', 
+              borderBottom: '1px solid var(--borde)', 
+              paddingBottom: '12px',
+              marginBottom: '12px',
+              textAlign: 'center',
+              fontWeight: '700',
+              color: '#6b7280',
+              fontSize: '0.9rem'
+            }}>
+              <div>Dom</div>
+              <div>Lun</div>
+              <div>Mar</div>
+              <div>Mié</div>
+              <div>Jue</div>
+              <div>Vie</div>
+              <div>Sáb</div>
+            </div>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', 
-          gap: '8px',
-          minHeight: '60vh'
-        }}>
+            {/* Calendar Grid Body */}
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', 
+              gap: '8px',
+              minHeight: '60vh'
+            }}>
+
           {calendarDays.map((day, idx) => {
             const isToday = day === new Date().getDate() && currentMonthIndex === new Date().getMonth() && currentYear === new Date().getFullYear();
             
@@ -269,6 +273,8 @@ export default function CalendarioPage() {
               </div>
             );
           })}
+            </div>
+          </div>
         </div>
       </div>
 
