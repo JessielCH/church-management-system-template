@@ -26,8 +26,15 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Image src="/images/logo.svg" alt="Church Logo" width={36} height={36} style={{ borderRadius: '8px', flexShrink: 0 }} />
-          {!isCollapsed && <h2>Church Admin</h2>}
+          <Image src="/images/logo.svg" alt="IEBB Logo" width={38} height={38} style={{ borderRadius: '8px', flexShrink: 0 }} />
+          {!isCollapsed && (
+            <div>
+              <h2 style={{ fontSize: '1.05rem', margin: 0, color: '#ffffff', lineHeight: 1.2 }}>IEBB Esperanza</h2>
+              <span style={{ fontSize: '0.68rem', color: '#f6c981', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                Esperanza en Dios
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Mobile close button */}
@@ -74,10 +81,10 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
         {!isCollapsed && (
           <div className="user-profile" style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div className="avatar">P</div>
+              <div className="avatar">E</div>
               <div className="user-info">
-                <strong>Pastor / Usuario</strong>
-                <span>Gestión Activa</span>
+                <strong>IEBB Esperanza</strong>
+                <span>Gestión Ministerial</span>
               </div>
             </div>
             <button

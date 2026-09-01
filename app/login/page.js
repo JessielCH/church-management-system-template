@@ -21,13 +21,13 @@ export default function LoginPage() {
         <div style={styles.header}>
           <Image
             src="/images/logo.svg"
-            alt="Church Logo"
-            width={64}
-            height={64}
-            style={{ borderRadius: '16px', marginBottom: '12px' }}
+            alt="IEBB Logo"
+            width={72}
+            height={72}
+            style={{ borderRadius: '18px', marginBottom: '16px' }}
           />
-          <h1 style={styles.title}>Church Admin</h1>
-          <p style={styles.subtitle}>Sistema de Gestión Eclesiástica</p>
+          <h1 style={styles.title}>IEBB Esperanza en Dios</h1>
+          <p style={styles.subtitle}>Plataforma de Gestión Ministerial</p>
         </div>
 
         {state?.error && (
@@ -45,7 +45,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 name="username"
-                placeholder="Ej. admin"
+                placeholder="Ej. pastor1 o multimedia1"
                 required
                 style={styles.input}
               />
@@ -53,7 +53,7 @@ export default function LoginPage() {
           </div>
 
           <div style={styles.fieldGroup}>
-            <label style={styles.label}>Contraseña Inicial / Temporal</label>
+            <label style={styles.label}>Contraseña</label>
             <div style={styles.inputWrapper}>
               <span className="material-symbols-outlined" style={styles.inputIcon}>lock</span>
               <input
@@ -78,7 +78,7 @@ export default function LoginPage() {
         </form>
 
         <div style={styles.footerNote}>
-          <p>🔒 Acceso restringido a líderes y administradores autorizados.</p>
+          <p>🔒 Acceso exclusivo para líderes y servidores de IEBB Esperanza en Dios.</p>
         </div>
       </div>
     </div>
@@ -96,26 +96,28 @@ const styles = {
   },
   card: {
     backgroundColor: '#ffffff',
-    borderRadius: '20px',
-    padding: '40px 32px',
+    borderRadius: '24px',
+    padding: '44px 36px',
     width: '100%',
-    maxWidth: '420px',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)',
+    maxWidth: '440px',
+    boxShadow: '0 25px 30px -5px rgba(0, 0, 0, 0.35)',
   },
   header: {
     textAlign: 'center',
     marginBottom: '28px',
   },
   title: {
-    fontSize: '1.6rem',
+    fontSize: '1.65rem',
     fontWeight: '700',
     color: '#1b1f3b',
     margin: 0,
+    letterSpacing: '-0.5px',
   },
   subtitle: {
     fontSize: '0.88rem',
     color: '#6b7280',
-    marginTop: '4px',
+    marginTop: '6px',
+    fontWeight: '500',
   },
   errorAlert: {
     backgroundColor: '#fff5f5',

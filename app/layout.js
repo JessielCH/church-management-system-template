@@ -2,8 +2,8 @@ import './globals.css';
 import AppLayoutWrapper from '@/components/AppLayoutWrapper';
 
 export const metadata = {
-  title: 'Church Management System',
-  description: 'Administrative and Management Platform for Churches',
+  title: 'IEBB Esperanza en Dios - Sistema de Gestión',
+  description: 'Plataforma de Gestión Ministerial e Institucional de IEBB Esperanza en Dios',
 };
 
 export default function RootLayout({ children }) {
