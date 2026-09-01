@@ -9,9 +9,14 @@ export default function CalendarioPage() {
   const [events, setEvents] = useState([]);
   const [userRole, setUserRole] = useState('');
   
+  // Modal states
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
   const [deletingEventId, setDeletingEventId] = useState(null);
+  const [selectedDateForNewEvent, setSelectedDateForNewEvent] = useState(null);
+
+  // Calendar state
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const [createState, createFormAction, isCreatePending] = useActionState(createEventAction, null);
   const [updateState, updateFormAction, isUpdatePending] = useActionState(updateEventAction, null);
@@ -24,7 +29,6 @@ export default function CalendarioPage() {
       }
       const res = await getEventsAction();
       if (res?.success) {
-        // Show all upcoming/past events, sorted by date (handled in server action)
         setEvents(res.events || []);
       }
     }
@@ -40,14 +44,13 @@ export default function CalendarioPage() {
     }
   };
 
-  // Only Secretary, Coordinator, and Admin can create/edit/delete general events
   const canManageEvents = ['SECRETARIA', 'COORDINADOR', 'ADMIN'].includes(userRole);
 
   const translateType = (type) => {
     switch (type) {
-      case 'SERVICE': return '⛪ Culto General';
-      case 'MINISTRY': return '👥 Reunión de Ministerio';
-      case 'TEACHING': return '📚 Enseñanza / Discipulado';
+      case 'SERVICE': return '⛪ Culto';
+      case 'MINISTRY': return '👥 Ministerio';
+      case 'TEACHING': return '📚 Enseñanza';
       case 'OUTREACH': return '🌍 Evangelismo';
       default: return type;
     }
@@ -55,121 +58,218 @@ export default function CalendarioPage() {
 
   const getEventColor = (type) => {
     switch (type) {
-      case 'SERVICE': return { bg: '#e0e7ff', text: '#4338ca' };
-      case 'MINISTRY': return { bg: '#fce7f3', text: '#be185d' };
-      case 'TEACHING': return { bg: '#ffedd5', text: '#c2410c' };
-      case 'OUTREACH': return { bg: '#dcfce7', text: '#15803d' };
-      default: return { bg: '#f3f4f6', text: '#374151' };
+      case 'SERVICE': return { bg: '#e0e7ff', text: '#4338ca', border: '#c7d2fe' };
+      case 'MINISTRY': return { bg: '#fce7f3', text: '#be185d', border: '#fbcfe8' };
+      case 'TEACHING': return { bg: '#ffedd5', text: '#c2410c', border: '#fed7aa' };
+      case 'OUTREACH': return { bg: '#dcfce7', text: '#15803d', border: '#bbf7d0' };
+      default: return { bg: '#f3f4f6', text: '#374151', border: '#e5e7eb' };
     }
+  };
+
+  // --- Calendar Math & Logic ---
+  const currentMonthIndex = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+  
+  const daysInMonth = new Date(currentYear, currentMonthIndex + 1, 0).getDate();
+  const firstDayOfMonth = new Date(currentYear, currentMonthIndex, 1).getDay(); // 0 = Sunday, 1 = Monday
+  
+  const monthNames = [
+    'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+    'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+  ];
+
+  const nextMonth = () => setCurrentDate(new Date(currentYear, currentMonthIndex + 1, 1));
+  const prevMonth = () => setCurrentDate(new Date(currentYear, currentMonthIndex - 1, 1));
+  const goToday = () => setCurrentDate(new Date());
+
+  // Generate calendar grid array
+  const calendarDays = [];
+  // Fill empty slots before first day
+  for (let i = 0; i < firstDayOfMonth; i++) {
+    calendarDays.push(null);
+  }
+  // Fill actual days
+  for (let i = 1; i <= daysInMonth; i++) {
+    calendarDays.push(i);
+  }
+
+  // Helper to open modal prefilled with clicked day
+  const handleDayClick = (dayNumber) => {
+    if (!canManageEvents || !dayNumber) return;
+    const dateToSet = new Date(currentYear, currentMonthIndex, dayNumber, 19, 0); // Default to 7:00 PM
+    const localIsoString = new Date(dateToSet.getTime() - dateToSet.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    setSelectedDateForNewEvent(localIsoString);
+    setShowModal(true);
   };
 
   return (
     <div>
       <div className="welcome-section" style={{ marginBottom: '28px' }}>
         <div>
-          <h1>Calendario de Eventos</h1>
-          <p>Visualización de fechas de próximos eventos, cultos y reuniones de la iglesia.</p>
+          <h1>Calendario de Eventos IEBB</h1>
+          <p>Fechas de próximos cultos, ministerios y actividades generales de la iglesia.</p>
         </div>
 
         {canManageEvents && (
-          <button className="primary-button" onClick={() => setShowModal(true)}>
-            <span className="material-symbols-outlined">event_note</span>
-            + Nuevo Evento
+          <button className="primary-button" onClick={() => { setSelectedDateForNewEvent(null); setShowModal(true); }}>
+            <span className="material-symbols-outlined">add_circle</span>
+            + Añadir Evento
           </button>
         )}
       </div>
 
-      <div className="content-card">
-        {events.length === 0 ? (
-          <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
-            <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>event_busy</span>
-            <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay eventos programados en el calendario.</p>
-            <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>Las fechas de los próximos eventos serán agregadas por el Secretario o Coordinador.</p>
+      <div className="content-card" style={{ padding: '24px' }}>
+        {/* Calendar Header Controls */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button className="icon-button" onClick={prevMonth} style={{ backgroundColor: '#f3f4f6' }}>
+              <span className="material-symbols-outlined">chevron_left</span>
+            </button>
+            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', color: '#1b1f3b', minWidth: '160px', textAlign: 'center' }}>
+              {monthNames[currentMonthIndex]} {currentYear}
+            </h2>
+            <button className="icon-button" onClick={nextMonth} style={{ backgroundColor: '#f3f4f6' }}>
+              <span className="material-symbols-outlined">chevron_right</span>
+            </button>
           </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
-            {events.map((e) => {
-              const dateObj = new Date(e.date);
-              const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
-              const colors = getEventColor(e.type);
+          <button 
+            onClick={goToday} 
+            style={{ 
+              padding: '8px 16px', 
+              borderRadius: '8px', 
+              border: '1px solid var(--borde)', 
+              backgroundColor: '#ffffff', 
+              fontWeight: '600', 
+              cursor: 'pointer' 
+            }}
+          >
+            Hoy
+          </button>
+        </div>
 
-              return (
-                <div
-                  key={e.id}
-                  style={{
-                    padding: '20px',
-                    borderRadius: '16px',
-                    border: '1px solid var(--borde)',
-                    backgroundColor: '#ffffff',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-                    opacity: isPast ? 0.6 : 1,
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <div style={{
-                      backgroundColor: '#1b1f3b',
-                      color: '#ffffff',
-                      padding: '8px 12px',
-                      borderRadius: '12px',
-                      textAlign: 'center',
-                      minWidth: '60px'
+        {/* Calendar Grid */}
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(7, 1fr)', 
+          gap: '8px', 
+          borderBottom: '1px solid var(--borde)', 
+          paddingBottom: '12px',
+          marginBottom: '12px',
+          textAlign: 'center',
+          fontWeight: '700',
+          color: '#6b7280',
+          fontSize: '0.9rem'
+        }}>
+          <div>Dom</div>
+          <div>Lun</div>
+          <div>Mar</div>
+          <div>Mié</div>
+          <div>Jue</div>
+          <div>Vie</div>
+          <div>Sáb</div>
+        </div>
+
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', 
+          gap: '8px',
+          minHeight: '60vh'
+        }}>
+          {calendarDays.map((day, idx) => {
+            const isToday = day === new Date().getDate() && currentMonthIndex === new Date().getMonth() && currentYear === new Date().getFullYear();
+            
+            // Filter events for this specific day
+            const dayEvents = day ? events.filter(e => {
+              const eDate = new Date(e.date);
+              return eDate.getDate() === day && eDate.getMonth() === currentMonthIndex && eDate.getFullYear() === currentYear;
+            }) : [];
+
+            return (
+              <div 
+                key={idx} 
+                onClick={() => handleDayClick(day)}
+                style={{
+                  minHeight: '120px',
+                  border: '1px solid var(--borde)',
+                  borderRadius: '12px',
+                  padding: '8px',
+                  backgroundColor: day ? (isToday ? '#f0fdf4' : '#ffffff') : '#fafafa',
+                  cursor: (day && canManageEvents) ? 'pointer' : 'default',
+                  transition: 'border-color 0.2s ease',
+                  position: 'relative'
+                }}
+                onMouseEnter={(e) => {
+                  if (day && canManageEvents) e.currentTarget.style.borderColor = '#4338ca';
+                }}
+                onMouseLeave={(e) => {
+                  if (day && canManageEvents) e.currentTarget.style.borderColor = 'var(--borde)';
+                }}
+              >
+                {day && (
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between', 
+                    alignItems: 'center', 
+                    marginBottom: '8px'
+                  }}>
+                    <span style={{ 
+                      fontWeight: isToday ? '800' : '600', 
+                      color: isToday ? '#15803d' : '#1b1f3b',
+                      backgroundColor: isToday ? '#dcfce7' : 'transparent',
+                      width: '28px',
+                      height: '28px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '50%'
                     }}>
-                      <div style={{ fontSize: '1.2rem', fontWeight: '800', lineHeight: '1' }}>{dateObj.getDate()}</div>
-                      <div style={{ fontSize: '0.75rem', fontWeight: '600', textTransform: 'uppercase', marginTop: '4px' }}>
-                        {dateObj.toLocaleString('es-ES', { month: 'short' })}
-                      </div>
-                    </div>
-                    <span
-                      style={{
-                        fontSize: '0.78rem',
-                        fontWeight: '700',
-                        color: colors.text,
-                        padding: '4px 10px',
-                        borderRadius: '20px',
-                        backgroundColor: colors.bg,
-                      }}
-                    >
-                      {translateType(e.type)}
+                      {day}
                     </span>
                   </div>
+                )}
 
-                  <h4 style={{ margin: '0 0 8px', fontSize: '1.1rem', fontWeight: '700', color: '#1b1f3b' }}>{e.title}</h4>
-                  
-                  <div style={{ fontSize: '0.85rem', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '6px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>schedule</span>
-                    {dateObj.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                  </div>
-                  
-                  <div style={{ fontSize: '0.85rem', color: '#4b5563', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                    <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>location_on</span>
-                    {e.location}
-                  </div>
-
-                  {canManageEvents && (
-                    <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--borde)', display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
-                      <button
-                        className="action-btn"
-                        onClick={() => setEditingEvent(e)}
-                        title="Editar Evento"
-                        style={{ color: '#4338ca', borderColor: '#e0e7ff', backgroundColor: '#e0e7ff' }}
+                {/* Render events as small pills */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  {dayEvents.map(ev => {
+                    const colors = getEventColor(ev.type);
+                    const evTime = new Date(ev.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                    
+                    return (
+                      <div 
+                        key={ev.id}
+                        onClick={(e) => {
+                          e.stopPropagation(); // Prevent opening the add event modal
+                          if (canManageEvents) setEditingEvent(ev);
+                        }}
+                        style={{
+                          backgroundColor: colors.bg,
+                          color: colors.text,
+                          border: `1px solid ${colors.border}`,
+                          padding: '4px 6px',
+                          borderRadius: '6px',
+                          fontSize: '0.75rem',
+                          fontWeight: '600',
+                          textAlign: 'left',
+                          cursor: canManageEvents ? 'pointer' : 'default',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '2px',
+                          whiteSpace: 'nowrap',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis'
+                        }}
+                        title={`${ev.title} - ${evTime}`}
                       >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
-                      </button>
-                      <button
-                        className="action-btn"
-                        onClick={() => setDeletingEventId(e.id)}
-                        title="Eliminar Evento"
-                        style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
-                      </button>
-                    </div>
-                  )}
+                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.title}</span>
+                        <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{evTime}</span>
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
-        )}
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       <ConfirmModal
@@ -204,7 +304,12 @@ export default function CalendarioPage() {
 
               <div className="form-group">
                 <label>Fecha y Hora</label>
-                <input type="datetime-local" name="date" required />
+                <input 
+                  type="datetime-local" 
+                  name="date" 
+                  defaultValue={selectedDateForNewEvent || ''} 
+                  required 
+                />
               </div>
 
               <div className="form-group">
@@ -280,11 +385,25 @@ export default function CalendarioPage() {
                 </select>
               </div>
 
-              <div className="modal-actions">
-                <button type="button" className="secondary-button" onClick={() => setEditingEvent(null)}>Cancelar</button>
-                <button type="submit" className="primary-button" disabled={isUpdatePending}>
-                  {isUpdatePending ? 'Actualizando...' : 'Guardar Cambios'}
+              <div className="modal-actions" style={{ justifyContent: 'space-between' }}>
+                <button 
+                  type="button" 
+                  className="secondary-button" 
+                  style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
+                  onClick={() => {
+                    setDeletingEventId(editingEvent.id);
+                    setEditingEvent(null);
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                  Eliminar
                 </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button type="button" className="secondary-button" onClick={() => setEditingEvent(null)}>Cancelar</button>
+                  <button type="submit" className="primary-button" disabled={isUpdatePending}>
+                    {isUpdatePending ? 'Actualizando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
               </div>
             </form>
           </div>

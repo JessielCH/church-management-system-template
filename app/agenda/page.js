@@ -70,10 +70,10 @@ export default function AgendaPage() {
 
   return (
     <div>
-      <div className="welcome-section" style={{ marginBottom: '32px' }}>
+      <div className="welcome-section" style={{ marginBottom: '28px' }}>
         <div>
-          <h1>Agenda Pastoral</h1>
-          <p>Gestión de actividades, visitas pastorales y notificaciones por WhatsApp.</p>
+          <h1>Agenda Pastoral (Personal)</h1>
+          <p>Registro y seguimiento de consejerías, visitas y actividades pastorales.</p>
         </div>
         {isAllowedAdmin && (
           <button className="primary-button" onClick={() => setShowModal(true)}>
