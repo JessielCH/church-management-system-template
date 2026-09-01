@@ -3,8 +3,16 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding test user accounts for all roles (mustChangePassword = false)...');
+  console.log('Cleaning fake sample data and seeding ONLY the 5 authorized user accounts...');
 
+  // 1. Clean up fake dummy records from tables
+  await prisma.followUp.deleteMany({});
+  await prisma.member.deleteMany({});
+  await prisma.event.deleteMany({});
+  await prisma.ministry.deleteMany({});
+  await prisma.multimediaTicket.deleteMany({});
+
+  // 2. Seed ONLY the 5 test user accounts
   const usersToSeed = [
     { username: 'pastor1', name: 'Pr. Carlos Mendoza', role: 'PASTOR', pass: 'pastor1' },
     { username: 'admin', name: 'Coordinador General', role: 'COORDINADOR', pass: 'admin123' },
@@ -33,36 +41,7 @@ async function main() {
     });
   }
 
-  // Create Ministries
-  await prisma.ministry.createMany({
-    skipDuplicates: true,
-    data: [
-      { name: 'Alabanza y Adoración', description: 'Ministerio de música', leaderName: 'Líder Alabanza' },
-      { name: 'Evangelismo', description: 'Alcance y misiones', leaderName: 'Pr. Carlos Mendoza' },
-      { name: 'Jóvenes', description: 'Ministerio juvenil', leaderName: 'Ana Mendoza' },
-    ],
-  });
-
-  // Create Sample Members
-  await prisma.member.createMany({
-    skipDuplicates: true,
-    data: [
-      { fullName: 'Pr. Carlos Mendoza', identityCard: '4589201 SC', phone: '+591 710 44321', email: 'carlos@ejemplo.org', ministry: 'Evangelismo', baptismStatus: 'BAPTIZED', status: 'ACTIVE' },
-      { fullName: 'Carlos Rodríguez', identityCard: '3940129 SC', phone: '+591 700 12345', email: 'carlos.r@ejemplo.org', ministry: 'Alabanza y Adoración', baptismStatus: 'PENDING', status: 'ACTIVE' },
-      { fullName: 'María Gómez', identityCard: '5120934 SC', phone: '+591 750 98765', email: 'maria@ejemplo.org', ministry: 'Jóvenes', baptismStatus: 'NOT_BAPTIZED', status: 'PENDING' },
-    ],
-  });
-
-  // Create Events
-  await prisma.event.createMany({
-    skipDuplicates: true,
-    data: [
-      { title: 'Culto de Oración y Enseñanza', date: new Date('2026-09-03T19:00:00Z'), location: 'Templo Principal', type: 'SERVICE' },
-      { title: 'Culto Dominical Principal', date: new Date('2026-09-06T09:30:00Z'), location: 'Auditorio Principal', type: 'SERVICE' },
-    ],
-  });
-
-  console.log('Database seeding completed successfully. Direct login enabled (no mandatory password change).');
+  console.log('Database cleaned. Only 5 test user accounts remain.');
 }
 
 main()
