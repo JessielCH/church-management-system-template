@@ -45,7 +45,7 @@ enum EventType {
 
 enum TicketCategory {
   WORSHIP_SONG // Alabanzas y letras para proyectar
-  MEDIA_REQUEST // Video, anuncio, gráfico semanal
+  MEDIA_REQUEST // Publicidades
 }
 
 enum TicketStatus {
@@ -119,6 +119,7 @@ model MultimediaTicket {
   category    TicketCategory @default(WORSHIP_SONG)
   description String?
   requestedBy String
+  assignedTo  String?
   status      TicketStatus   @default(PENDING)
   eventDate   DateTime?
   createdAt   DateTime       @default(now())

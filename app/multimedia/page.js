@@ -1,7 +1,13 @@
 'use client';
 
 import { useState, useActionState, useEffect } from 'react';
-import { getTicketsAction, createWorshipTicketAction, createMediaRequestAction, updateTicketStatusAction } from '@/app/actions/ticketActions';
+import {
+  getTicketsAction,
+  createWorshipTicketAction,
+  createMediaRequestAction,
+  updateTicketStatusAction,
+  assignTicketAction,
+} from '@/app/actions/ticketActions';
 
 export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
@@ -79,6 +85,13 @@ export default function MultimediaPage() {
     await updateTicketStatusAction(id, nextStatus);
   };
 
+  const handleAssignTicket = async (id, assignedTo) => {
+    setTickets((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, assignedTo } : t))
+    );
+    await assignTicketAction(id, assignedTo);
+  };
+
   const worshipTickets = tickets.filter((t) => t.category === 'WORSHIP_SONG');
   const mediaTickets = tickets.filter((t) => t.category === 'MEDIA_REQUEST');
 
@@ -87,7 +100,7 @@ export default function MultimediaPage() {
       <div className="page-header flex-between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1>Módulo Multimedia y Proyección de Alabanzas</h1>
-          <p className="subtitle">Gestión de tickets de letras para proyección en cultos y peticiones de producción semanal.</p>
+          <p className="subtitle">Gestión de tickets de letras para proyección en cultos y peticiones de publicidad semanal.</p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -97,7 +110,7 @@ export default function MultimediaPage() {
           </button>
 
           <button className="primary-button" onClick={() => setShowMediaModal(true)} style={{ backgroundColor: '#4338ca' }}>
-            <span className="material-symbols-outlined">video_settings</span>
+            <span className="material-symbols-outlined">campaign</span>
             + Petición de Publicidad
           </button>
         </div>
@@ -117,8 +130,8 @@ export default function MultimediaPage() {
           onClick={() => setActiveTab('media')}
           className={`tab-button ${activeTab === 'media' ? 'active' : ''}`}
         >
-          <span className="material-symbols-outlined">video_library</span>
-          Producción de Video y Gráfica ({mediaTickets.length})
+          <span className="material-symbols-outlined">campaign</span>
+          Publicidades ({mediaTickets.length})
         </button>
 
         <button
@@ -143,7 +156,7 @@ export default function MultimediaPage() {
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>queue_music</span>
                 <p style={{ margin: 0, fontWeight: '600' }}>No hay alabanzas registradas en la cola.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y quién dirige.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y director de esta semana.</p>
               </div>
             ) : (
               worshipTickets.map((t) => (
@@ -157,6 +170,8 @@ export default function MultimediaPage() {
                     borderRadius: '12px',
                     border: '1px solid var(--borde)',
                     backgroundColor: '#ffffff',
+                    flexWrap: 'wrap',
+                    gap: '12px',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -183,7 +198,27 @@ export default function MultimediaPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    {/* Assignment Selector for Multimedia Admin */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>Asignado a:</span>
+                      <select
+                        value={t.assignedTo || ''}
+                        onChange={(e) => handleAssignTicket(t.id, e.target.value)}
+                        style={{
+                          fontSize: '0.78rem',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid var(--borde)',
+                          backgroundColor: '#f9fafb',
+                        }}
+                      >
+                        <option value="">Sin Asignar</option>
+                        <option value="multimedia1">multimedia1 (Operador 1)</option>
+                        <option value="multimedia2">multimedia2 (Operador 2)</option>
+                      </select>
+                    </div>
+
                     <span
                       style={{
                         fontSize: '0.78rem',
@@ -214,19 +249,19 @@ export default function MultimediaPage() {
         </div>
       )}
 
-      {/* Tab 2: Weekly Media Requests */}
+      {/* Tab 2: Publicidades */}
       {activeTab === 'media' && (
         <div className="content-card">
           <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined text-vivid">movie</span>
-            Peticiones de Videos, Anuncios y Gráficas Semanales
+            <span className="material-symbols-outlined text-vivid">campaign</span>
+            Peticiones de Publicidades y Anuncios
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {mediaTickets.length === 0 ? (
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>video_library</span>
-                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de publicidad o video pendientes.</p>
+                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>campaign</span>
+                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de publicidad o anuncios pendientes.</p>
                 <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones usando "+ Petición de Publicidad".</p>
               </div>
             ) : (
@@ -241,6 +276,8 @@ export default function MultimediaPage() {
                     borderRadius: '12px',
                     border: '1px solid var(--borde)',
                     backgroundColor: '#ffffff',
+                    flexWrap: 'wrap',
+                    gap: '12px',
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -257,7 +294,7 @@ export default function MultimediaPage() {
                         flexShrink: 0,
                       }}
                     >
-                      <span className="material-symbols-outlined">video_settings</span>
+                      <span className="material-symbols-outlined">campaign</span>
                     </div>
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
@@ -267,7 +304,27 @@ export default function MultimediaPage() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    {/* Assignment Selector for Multimedia Admin */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>Asignado a:</span>
+                      <select
+                        value={t.assignedTo || ''}
+                        onChange={(e) => handleAssignTicket(t.id, e.target.value)}
+                        style={{
+                          fontSize: '0.78rem',
+                          padding: '4px 8px',
+                          borderRadius: '6px',
+                          border: '1px solid var(--borde)',
+                          backgroundColor: '#f9fafb',
+                        }}
+                      >
+                        <option value="">Sin Asignar</option>
+                        <option value="multimedia1">multimedia1 (Operador 1)</option>
+                        <option value="multimedia2">multimedia2 (Operador 2)</option>
+                      </select>
+                    </div>
+
                     <span
                       style={{
                         fontSize: '0.78rem',
@@ -332,7 +389,7 @@ export default function MultimediaPage() {
                         color: t.category === 'WORSHIP_SONG' ? '#ea580c' : '#4338ca',
                       }}
                     >
-                      {t.category === 'WORSHIP_SONG' ? '🎵 Alabanza' : '🎬 Producción'}
+                      {t.category === 'WORSHIP_SONG' ? '🎵 Alabanza' : '🎬 Publicidad'}
                     </span>
                     <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
                       Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
@@ -340,6 +397,11 @@ export default function MultimediaPage() {
                   </div>
                   <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
                   <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description}</p>
+                  {t.assignedTo && (
+                    <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#4f46e5', fontWeight: '600' }}>
+                      👤 Asignado a: {t.assignedTo}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -375,7 +437,7 @@ export default function MultimediaPage() {
               </div>
 
               <div className="form-group">
-                <label>¿Quién dirige esa semana? / Líder de Alabanza</label>
+                <label>Director de esta semana</label>
                 <input type="text" name="leaderName" placeholder="Ej. Carlos Ruiz" required />
               </div>
 
@@ -397,12 +459,12 @@ export default function MultimediaPage() {
         </div>
       )}
 
-      {/* MODAL 2: Petición de Publicidad / Media */}
+      {/* MODAL 2: Petición de Publicidad */}
       {showMediaModal && (
         <div className="modal-backdrop" onClick={() => setShowMediaModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>🎬 Petición de Publicidad y Producción</h2>
+              <h2>🎬 Petición de Publicidad</h2>
               <button className="action-btn" onClick={() => setShowMediaModal(false)}>
                 <span className="material-symbols-outlined">close</span>
               </button>

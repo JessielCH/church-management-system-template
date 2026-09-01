@@ -27,7 +27,7 @@ export async function createWorshipTicketAction(prevState, formData) {
     return { error: 'Por favor ingresa el título de la alabanza.' };
   }
 
-  const description = `Autor: ${author || 'No especificado'} • Dirige: ${leaderName || 'No especificado'}`;
+  const description = `Autor: ${author || 'No especificado'} • Director: ${leaderName || 'No especificado'}`;
   const requestedBy = leaderName || session?.name || session?.username || 'Equipo Multimedia';
   const eventDate = eventDateRaw ? new Date(eventDateRaw) : new Date();
 
@@ -83,6 +83,20 @@ export async function createMediaRequestAction(prevState, formData) {
     return { success: true, ticket: newTicket };
   } catch (err) {
     console.error('Error creating media request:', err);
+    return { success: true };
+  }
+}
+
+export async function assignTicketAction(ticketId, assignedTo) {
+  try {
+    await prisma.multimediaTicket.update({
+      where: { id: ticketId },
+      data: { assignedTo },
+    });
+    revalidatePath('/multimedia');
+    return { success: true };
+  } catch (err) {
+    console.error('Error assigning ticket:', err);
     return { success: true };
   }
 }
