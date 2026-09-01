@@ -43,11 +43,11 @@ export default function AgendaPage() {
   };
 
   return (
-    <div className="main-content">
-      <div className="page-header flex-between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+    <div>
+      <div className="welcome-section" style={{ marginBottom: '32px' }}>
         <div>
-          <h1>Agenda Pastoral y Calendario Eclesiástico</h1>
-          <p className="subtitle">Gestión de actividades, visitas pastorales y notificaciones por WhatsApp.</p>
+          <h1>Agenda Pastoral</h1>
+          <p>Gestión de actividades, visitas pastorales y notificaciones por WhatsApp.</p>
         </div>
         <button className="primary-button" onClick={() => setShowModal(true)}>
           <span className="material-symbols-outlined">event</span>
@@ -56,23 +56,23 @@ export default function AgendaPage() {
       </div>
 
       {/* KPI Summary Cards */}
-      <div className="kpi-grid" style={{ marginBottom: '24px' }}>
+      <div className="kpi-grid" style={{ marginBottom: '32px' }}>
         <div className="kpi-card">
-          <span className="material-symbols-outlined icon text-vivid">today</span>
+          <span className="material-symbols-outlined icon text-vivid" style={{ fontSize: '28px' }}>today</span>
           <div className="kpi-details">
             <h3>Eventos Programados</h3>
             <span className="value">{events.length}</span>
           </div>
         </div>
         <div className="kpi-card">
-          <span className="material-symbols-outlined icon text-warning">how_to_reg</span>
+          <span className="material-symbols-outlined icon text-warning" style={{ fontSize: '28px' }}>how_to_reg</span>
           <div className="kpi-details">
             <h3>Visitas Pastoral</h3>
             <span className="value">{events.filter((e) => e.type === 'PASTORAL').length}</span>
           </div>
         </div>
         <div className="kpi-card">
-          <span className="material-symbols-outlined icon text-success">chat</span>
+          <span className="material-symbols-outlined icon text-success" style={{ fontSize: '28px' }}>chat</span>
           <div className="kpi-details">
             <h3>Notificaciones WA</h3>
             <span className="value" style={{ color: '#25D366' }}>Activo</span>
@@ -82,17 +82,17 @@ export default function AgendaPage() {
 
       {/* Events List */}
       <div className="content-card">
-        <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span className="material-symbols-outlined text-vivid">calendar_month</span>
+        <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#1b1f3b' }}>
+          <span className="material-symbols-outlined text-vivid" style={{ fontSize: '26px' }}>calendar_month</span>
           Próximas Actividades y Compromisos
         </h3>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {events.length === 0 ? (
-            <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>event_busy</span>
-              <p style={{ margin: 0, fontWeight: '600' }}>No hay actividades registradas en la agenda.</p>
-              <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Nuevo Evento / Cita" para programar una visita pastoral o culto.</p>
+            <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>event_busy</span>
+              <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay actividades registradas en la agenda.</p>
+              <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>Presiona "+ Nuevo Evento / Cita" para programar una visita pastoral o culto.</p>
             </div>
           ) : (
             events.map((item) => (
@@ -102,10 +102,13 @@ export default function AgendaPage() {
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '16px',
-                  borderRadius: '12px',
+                  padding: '18px 22px',
+                  borderRadius: '16px',
                   border: '1px solid var(--borde)',
                   backgroundColor: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                  flexWrap: 'wrap',
+                  gap: '12px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
@@ -122,18 +125,18 @@ export default function AgendaPage() {
                       flexShrink: 0,
                     }}
                   >
-                    <span className="material-symbols-outlined">event_available</span>
+                    <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>event_available</span>
                   </div>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{item.title}</h4>
-                    <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
+                    <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700', color: '#1b1f3b' }}>{item.title}</h4>
+                    <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: '#4b5563' }}>
                       📅 {new Date(item.date).toLocaleDateString('es-ES')} • 📍 {item.location}
                     </p>
                   </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <span className="tag" style={{ backgroundColor: '#f3f4f6', color: '#374151' }}>
+                  <span className="tag" style={{ backgroundColor: '#f3f4f6', color: '#374151', padding: '6px 12px', borderRadius: '20px', fontWeight: '600', fontSize: '0.8rem' }}>
                     {item.type || 'SERVICIO'}
                   </span>
                 </div>
@@ -186,7 +189,7 @@ export default function AgendaPage() {
               </div>
 
               {/* WhatsApp Multi-choice Reminders */}
-              <div className="form-group" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '10px', border: '1px solid var(--borde)' }}>
+              <div className="form-group" style={{ backgroundColor: '#f9fafb', padding: '16px', borderRadius: '12px', border: '1px solid var(--borde)' }}>
                 <label style={{ color: '#25D366', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <span className="material-symbols-outlined">chat</span>
                   Recordatorios por WhatsApp (Selección Múltiple)
