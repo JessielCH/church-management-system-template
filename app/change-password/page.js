@@ -1,11 +1,17 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
 import Image from 'next/image';
 import { updatePasswordAction } from '@/app/actions/authActions';
 
 export default function ChangePasswordPage() {
   const [state, formAction, isPending] = useActionState(updatePasswordAction, null);
+
+  useEffect(() => {
+    if (state?.success && state?.redirectTo) {
+      window.location.href = state.redirectTo;
+    }
+  }, [state]);
 
   return (
     <div style={styles.container}>

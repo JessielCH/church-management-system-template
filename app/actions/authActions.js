@@ -22,15 +22,14 @@ export async function loginAction(prevState, formData) {
   let user = null;
 
   try {
-    // Attempt database lookup
     user = await prisma.user.findUnique({
       where: { username },
     });
   } catch (dbErr) {
-    console.warn('Database not connected or offline, using dev fallback:', dbErr.message);
+    console.warn('Database connection warning in loginAction:', dbErr.message);
   }
 
-  // Dev fallback for admin user if database is not seeded/connected locally
+  // Dev fallback for admin user if database is not seeded/connected
   if (!user && username === 'admin') {
     if (password === 'admin123') {
       const sessionData = {
@@ -49,7 +48,7 @@ export async function loginAction(prevState, formData) {
         maxAge: 60 * 60 * 24,
       });
 
-      redirect('/change-password');
+      return { success: true, redirectTo: '/change-password' };
     } else {
       return { error: 'Nombre de usuario o contraseña incorrectos.' };
     }
@@ -82,11 +81,8 @@ export async function loginAction(prevState, formData) {
     maxAge: 60 * 60 * 24,
   });
 
-  if (user.mustChangePassword) {
-    redirect('/change-password');
-  }
-
-  redirect('/');
+  const targetPath = user.mustChangePassword ? '/change-password' : '/';
+  return { success: true, redirectTo: targetPath };
 }
 
 export async function updatePasswordAction(prevState, formData) {
@@ -106,7 +102,7 @@ export async function updatePasswordAction(prevState, formData) {
     const sessionCookie = cookieStore.get('auth_session');
 
     if (!sessionCookie) {
-      redirect('/login');
+      return { error: 'Sesión expirada. Vuelve a iniciar sesión.' };
     }
 
     const session = JSON.parse(sessionCookie.value);
@@ -122,7 +118,7 @@ export async function updatePasswordAction(prevState, formData) {
           },
         });
       } catch (err) {
-        console.warn('Could not update password in DB, updating session:', err.message);
+        console.warn('Could not update password in DB:', err.message);
       }
     }
 
@@ -135,9 +131,8 @@ export async function updatePasswordAction(prevState, formData) {
       maxAge: 60 * 60 * 24,
     });
 
-    redirect('/');
+    return { success: true, redirectTo: '/' };
   } catch (err) {
-    if (err.message === 'NEXT_REDIRECT') throw err;
     console.error('Update password error:', err);
     return { error: 'Error al actualizar la contraseña.' };
   }

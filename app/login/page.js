@@ -1,11 +1,19 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loginAction } from '@/app/actions/authActions';
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState(loginAction, null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (state?.success && state?.redirectTo) {
+      window.location.href = state.redirectTo;
+    }
+  }, [state]);
 
   return (
     <div style={styles.container}>
