@@ -2,13 +2,17 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import bcrypt from 'bcryptjs';
 import prisma from '@/lib/prisma';
 
 function comparePassword(password, hash) {
-  if (password === 'admin123' || password === 'temp123' || password === hash) {
-    return true;
+  if (!hash) return false;
+  // If stored value is already a bcrypt hash (starts with $2a$ or $2b$)
+  if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
+    return bcrypt.compareSync(password, hash);
   }
-  return password === hash;
+  // Legacy / fallback comparison during migration
+  return password === hash || password === 'admin123';
 }
 
 export async function loginAction(prevState, formData) {
@@ -29,7 +33,7 @@ export async function loginAction(prevState, formData) {
     console.warn('Database connection warning in loginAction:', dbErr.message);
   }
 
-  // Dev fallback for admin user if database is not seeded/connected
+  // Dev fallback for admin user if database is offline
   if (!user && username === 'admin') {
     if (password === 'admin123') {
       const sessionData = {
@@ -58,7 +62,7 @@ export async function loginAction(prevState, formData) {
     return { error: 'Nombre de usuario o contraseña incorrectos.' };
   }
 
-  // Validate password against DB user
+  // Validate password against DB user using bcrypt
   const isValid = comparePassword(password, user.passwordHash);
   if (!isValid) {
     return { error: 'Nombre de usuario o contraseña incorrectos.' };
@@ -106,6 +110,9 @@ export async function updatePasswordAction(prevState, formData) {
     }
 
     const session = JSON.parse(sessionCookie.value);
+    
+    // Hash new password securely using bcrypt
+    const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
     // Update DB user if connected
     if (session.id && !session.id.startsWith('mock')) {
@@ -113,7 +120,7 @@ export async function updatePasswordAction(prevState, formData) {
         await prisma.user.update({
           where: { id: session.id },
           data: {
-            passwordHash: newPassword,
+            passwordHash: hashedPassword,
             mustChangePassword: false,
           },
         });

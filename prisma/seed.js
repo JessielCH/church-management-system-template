@@ -1,17 +1,23 @@
 const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding initial church database records...');
+  console.log('Seeding initial church database records with bcrypt hashed passwords...');
 
-  // Create Admin User with Username (No email required)
+  // Hash initial temporary admin password securely ($2a$10$...)
+  const hashedAdminPassword = bcrypt.hashSync('admin123', 10);
+
+  // Create Admin User with Username & bcrypt Hashed Password
   const admin = await prisma.user.upsert({
     where: { username: 'admin' },
-    update: {},
+    update: {
+      passwordHash: hashedAdminPassword,
+    },
     create: {
       username: 'admin',
       name: 'Pastor Principal',
-      passwordHash: 'hashed_password_placeholder',
+      passwordHash: hashedAdminPassword,
       role: 'PASTOR',
       mustChangePassword: true,
     },
@@ -46,7 +52,7 @@ async function main() {
     ],
   });
 
-  console.log('Database seeding completed successfully.');
+  console.log('Database seeding completed successfully with bcrypt encryption.');
 }
 
 main()
