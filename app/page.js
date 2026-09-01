@@ -22,6 +22,8 @@ async function getDashboardData() {
       orderBy: { date: 'asc' },
     });
 
+    const verses = await prisma.verse.findMany();
+
     return {
       totalMembers,
       baptizedCount,
@@ -29,6 +31,7 @@ async function getDashboardData() {
       followUpCount,
       followUps,
       upcomingEvents,
+      verses,
     };
   } catch (err) {
     console.warn('Dashboard DB query error:', err.message);
@@ -39,6 +42,7 @@ async function getDashboardData() {
       followUpCount: 0,
       followUps: [],
       upcomingEvents: [],
+      verses: [],
     };
   }
 }
@@ -60,25 +64,17 @@ export default async function DashboardPage() {
     timeIcon = 'bedtime';
   }
 
-  const usernameDisplay = session?.name || session?.username || 'Servidor de Dios';
+  const usernameDisplay = session?.name || session?.username || 'Usuario';
 
-  // Encouraging Scriptures list
-  const verses = [
-    {
-      text: '«Así que, hermanos míos amados, estad firmes y constantes, creciendo en la obra del Señor siempre, sabiendo que vuestro trabajo en el Señor no es en vano.»',
-      reference: '1 Corintios 15:58',
-    },
-    {
-      text: '«Y todo lo que hagáis, hacedlo de corazón, como para el Señor y no para los hombres.»',
-      reference: 'Colosenses 3:23',
-    },
-    {
-      text: '«Jehová es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar.»',
-      reference: 'Salmos 23:1-2',
-    },
-  ];
+  // Fetch daily scripture verse from database
+  let dailyVerse = {
+    text: '«Así que, hermanos míos amados, estad firmes y constantes, creciendo en la obra del Señor siempre, sabiendo que vuestro trabajo en el Señor no es en vano.»',
+    reference: '1 Corintios 15:58',
+  };
 
-  const dailyVerse = verses[Math.floor(Math.random() * verses.length)];
+  if (data.verses && data.verses.length > 0) {
+    dailyVerse = data.verses[Math.floor(Math.random() * data.verses.length)];
+  }
 
   return (
     <div className="main-content">
@@ -89,7 +85,7 @@ export default async function DashboardPage() {
             <span className="material-symbols-outlined text-vivid" style={{ fontSize: '32px' }}>{timeIcon}</span>
             {timeGreeting}, {usernameDisplay}!
           </h1>
-          <p className="subtitle">Resumen institucional y ministerial en tiempo real — IEBB Esperanza en Dios.</p>
+          <p className="subtitle">Resumen en tiempo real — IEBB Esperanza en Dios.</p>
         </div>
 
         <div className="date-display">
@@ -98,7 +94,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Encouraging Biblical Verse Card Banner */}
+      {/* Encouraging Biblical Verse Card Banner (Stored in Supabase DB) */}
       <div
         style={{
           background: 'linear-gradient(135deg, #1b1f3b 0%, #2e3567 100%)',
@@ -111,7 +107,7 @@ export default async function DashboardPage() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', position: 'relative', zIndex: 1 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '18px', position: 'relative', zIndex: 1 }}>
           <div
             style={{
               width: '48px',
@@ -125,16 +121,13 @@ export default async function DashboardPage() {
               flexShrink: 0,
             }}
           >
-            <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>menu_book</span>
+            <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>auto_stories</span>
           </div>
           <div>
-            <span style={{ fontSize: '0.78rem', color: '#f6c981', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Versículo de Aliento Pastoral
-            </span>
-            <p style={{ margin: '6px 0 4px', fontSize: '1rem', fontStyle: 'italic', lineHeight: '1.5', color: '#fefefe' }}>
+            <p style={{ margin: '0 0 6px', fontSize: '1.02rem', fontStyle: 'italic', lineHeight: '1.5', color: '#fefefe' }}>
               {dailyVerse.text}
             </p>
-            <strong style={{ fontSize: '0.85rem', color: '#f6c981' }}>— {dailyVerse.reference}</strong>
+            <strong style={{ fontSize: '0.88rem', color: '#f6c981' }}>— {dailyVerse.reference}</strong>
           </div>
         </div>
       </div>
