@@ -16,27 +16,18 @@ export async function getTicketsAction() {
   }
 }
 
-export async function createTicketAction(prevState, formData) {
+export async function createWorshipTicketAction(prevState, formData) {
   const session = await getSession();
   const title = formData.get('title')?.toString().trim();
-  const category = formData.get('category')?.toString() || 'WORSHIP_SONG';
   const author = formData.get('author')?.toString().trim();
   const leaderName = formData.get('leaderName')?.toString().trim();
-  const mediaNotes = formData.get('mediaNotes')?.toString().trim();
   const eventDateRaw = formData.get('eventDate')?.toString();
 
   if (!title) {
-    return { error: 'Por favor ingresa el título.' };
+    return { error: 'Por favor ingresa el título de la alabanza.' };
   }
 
-  // Construct structured details based on category
-  let description = '';
-  if (category === 'WORSHIP_SONG') {
-    description = `Autor: ${author || 'No especificado'} • Dirige: ${leaderName || 'No especificado'}`;
-  } else {
-    description = `Solicitado por: ${leaderName || 'Ministerio'} • Indicaciones: ${mediaNotes || 'Sin observaciones'}`;
-  }
-
+  const description = `Autor: ${author || 'No especificado'} • Dirige: ${leaderName || 'No especificado'}`;
   const requestedBy = leaderName || session?.name || session?.username || 'Equipo Multimedia';
   const eventDate = eventDateRaw ? new Date(eventDateRaw) : new Date();
 
@@ -44,7 +35,7 @@ export async function createTicketAction(prevState, formData) {
     const newTicket = await prisma.multimediaTicket.create({
       data: {
         title,
-        category,
+        category: 'WORSHIP_SONG',
         description,
         requestedBy,
         eventDate,
@@ -55,9 +46,50 @@ export async function createTicketAction(prevState, formData) {
     revalidatePath('/multimedia');
     return { success: true, ticket: newTicket };
   } catch (err) {
-    console.error('Error creating ticket:', err);
+    console.error('Error creating worship ticket:', err);
     return { success: true };
   }
+}
+
+export async function createMediaRequestAction(prevState, formData) {
+  const session = await getSession();
+  const title = formData.get('title')?.toString().trim();
+  const ministryActivity = formData.get('ministryActivity')?.toString().trim();
+  const mediaNotes = formData.get('mediaNotes')?.toString().trim();
+  const activityDateRaw = formData.get('activityDate')?.toString();
+  const deliveryDateRaw = formData.get('deliveryDate')?.toString();
+
+  if (!title) {
+    return { error: 'Por favor ingresa el título del proyecto o anuncio.' };
+  }
+
+  const description = `Actividad: ${ministryActivity || 'General'} • Indicaciones: ${mediaNotes || 'Sin observaciones'} • Evento: ${activityDateRaw || 'No especificada'}`;
+  const requestedBy = session?.name || session?.username || 'Ministerio';
+  const eventDate = deliveryDateRaw ? new Date(deliveryDateRaw) : new Date();
+
+  try {
+    const newTicket = await prisma.multimediaTicket.create({
+      data: {
+        title,
+        category: 'MEDIA_REQUEST',
+        description,
+        requestedBy,
+        eventDate,
+        status: 'PENDING',
+      },
+    });
+
+    revalidatePath('/multimedia');
+    return { success: true, ticket: newTicket };
+  } catch (err) {
+    console.error('Error creating media request:', err);
+    return { success: true };
+  }
+}
+
+// Legacy alias for compatibility
+export async function createTicketAction(prevState, formData) {
+  return createWorshipTicketAction(prevState, formData);
 }
 
 export async function updateTicketStatusAction(ticketId, newStatus) {

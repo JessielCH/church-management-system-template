@@ -1,15 +1,22 @@
 'use client';
 
 import { useState, useActionState, useEffect } from 'react';
-import { getTicketsAction, createTicketAction, updateTicketStatusAction } from '@/app/actions/ticketActions';
+import { getTicketsAction, createWorshipTicketAction, createMediaRequestAction, updateTicketStatusAction } from '@/app/actions/ticketActions';
 
 export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
-  const [showModal, setShowModal] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState('WORSHIP_SONG');
+  const [showWorshipModal, setShowWorshipModal] = useState(false);
+  const [showMediaModal, setShowMediaModal] = useState(false);
   const [tickets, setTickets] = useState([]);
 
-  const [state, formAction, isPending] = useActionState(createTicketAction, null);
+  // Dates logic for Media Request (3 days before suggestion)
+  const [activityDate, setActivityDate] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [suggestedDate, setSuggestedDate] = useState('');
+  const [isTightDeadline, setIsTightDeadline] = useState(false);
+
+  const [worshipState, worshipFormAction, isWorshipPending] = useActionState(createWorshipTicketAction, null);
+  const [mediaState, mediaFormAction, isMediaPending] = useActionState(createMediaRequestAction, null);
 
   useEffect(() => {
     async function loadTickets() {
@@ -19,7 +26,50 @@ export default function MultimediaPage() {
       }
     }
     loadTickets();
-  }, [state]);
+  }, [worshipState, mediaState]);
+
+  // Suggest 3-day deadline automatically
+  const handleActivityDateChange = (val) => {
+    setActivityDate(val);
+    if (!val) {
+      setSuggestedDate('');
+      setIsTightDeadline(false);
+      return;
+    }
+
+    const eventDateObj = new Date(val);
+    const recDate = new Date(eventDateObj);
+    recDate.setDate(eventDateObj.getDate() - 3);
+
+    const recStr = recDate.toISOString().split('T')[0];
+    setSuggestedDate(recStr);
+
+    if (!deliveryDate) {
+      setDeliveryDate(recStr);
+    } else {
+      checkDeadlineMargin(deliveryDate, val);
+    }
+  };
+
+  const handleDeliveryDateChange = (val) => {
+    setDeliveryDate(val);
+    if (activityDate) {
+      checkDeadlineMargin(val, activityDate);
+    }
+  };
+
+  const checkDeadlineMargin = (delivery, activity) => {
+    const delObj = new Date(delivery);
+    const actObj = new Date(activity);
+    const diffTime = actObj - delObj;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays < 3) {
+      setIsTightDeadline(true);
+    } else {
+      setIsTightDeadline(false);
+    }
+  };
 
   const handleStatusToggle = async (id, currentStatus) => {
     const nextStatus = currentStatus === 'PENDING' ? 'IN_PROGRESS' : currentStatus === 'IN_PROGRESS' ? 'COMPLETED' : 'PENDING';
@@ -39,10 +89,18 @@ export default function MultimediaPage() {
           <h1>Módulo Multimedia y Proyección de Alabanzas</h1>
           <p className="subtitle">Gestión de tickets de letras para proyección en cultos y peticiones de producción semanal.</p>
         </div>
-        <button className="primary-button" onClick={() => setShowModal(true)}>
-          <span className="material-symbols-outlined">add_task</span>
-          + Nuevo Ticket / Solicitud
-        </button>
+
+        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+          <button className="primary-button" onClick={() => setShowWorshipModal(true)} style={{ backgroundColor: '#ea580c' }}>
+            <span className="material-symbols-outlined">queue_music</span>
+            + Ticket de Alabanza
+          </button>
+
+          <button className="primary-button" onClick={() => setShowMediaModal(true)} style={{ backgroundColor: '#4338ca' }}>
+            <span className="material-symbols-outlined">video_settings</span>
+            + Petición de Publicidad
+          </button>
+        </div>
       </div>
 
       {/* Tabs Bar */}
@@ -85,7 +143,7 @@ export default function MultimediaPage() {
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>queue_music</span>
                 <p style={{ margin: 0, fontWeight: '600' }}>No hay alabanzas registradas en la cola.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Nuevo Ticket / Solicitud" para ingresar el título, autor y quién dirige.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y quién dirige.</p>
               </div>
             ) : (
               worshipTickets.map((t) => (
@@ -169,6 +227,7 @@ export default function MultimediaPage() {
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>video_library</span>
                 <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de publicidad o video pendientes.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones usando "+ Petición de Publicidad".</p>
               </div>
             ) : (
               mediaTickets.map((t) => (
@@ -288,86 +347,147 @@ export default function MultimediaPage() {
         </div>
       )}
 
-      {/* Modal Ticket Creation with Dynamic Fields & Scroll */}
-      {showModal && (
-        <div className="modal-backdrop" onClick={() => setShowModal(false)}>
+      {/* MODAL 1: Ticket de Alabanza */}
+      {showWorshipModal && (
+        <div className="modal-backdrop" onClick={() => setShowWorshipModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
-              <h2>Levantar Ticket Multimedia</h2>
-              <button className="action-btn" onClick={() => setShowModal(false)}>
+              <h2>🎵 Ticket de Alabanza para Proyectar</h2>
+              <button className="action-btn" onClick={() => setShowWorshipModal(false)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
             <form
               action={async (formData) => {
-                await formAction(formData);
-                setShowModal(false);
+                await worshipFormAction(formData);
+                setShowWorshipModal(false);
               }}
             >
               <div className="form-group">
-                <label>Categoría del Ticket</label>
-                <select
-                  name="category"
-                  value={selectedCategory}
-                  onChange={(e) => setSelectedCategory(e.target.value)}
-                >
-                  <option value="WORSHIP_SONG">🎵 Alabanza / Letra para Proyectar</option>
-                  <option value="MEDIA_REQUEST">🎬 Video de Anuncio / Gráfica / Publicidad</option>
-                </select>
+                <label>Título de la Alabanza</label>
+                <input type="text" name="title" placeholder="Ej. Cuán Grande es Él" required />
               </div>
 
-              {selectedCategory === 'WORSHIP_SONG' ? (
-                <>
-                  <div className="form-group">
-                    <label>Título de la Alabanza</label>
-                    <input type="text" name="title" placeholder="Ej. Cuán Grande es Él" required />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Autor / Artista</label>
-                    <input type="text" name="author" placeholder="Ej. En Espíritu y En Verdad / Miel San Marcos" required />
-                  </div>
-
-                  <div className="form-group">
-                    <label>¿Quién dirige esa semana? / Líder de Alabanza</label>
-                    <input type="text" name="leaderName" placeholder="Ej. Carlos Ruiz" required />
-                  </div>
-                </>
-              ) : (
-                <>
-                  <div className="form-group">
-                    <label>Título del Proyecto / Video de Anuncio</label>
-                    <input type="text" name="title" placeholder="Ej. Video Campamento Juvenil 2026" required />
-                  </div>
-
-                  <div className="form-group">
-                    <label>¿Quién dirige / solicita esa semana?</label>
-                    <input type="text" name="leaderName" placeholder="Ej. Pr. Carlos Mendoza" required />
-                  </div>
-
-                  <div className="form-group">
-                    <label>Indicaciones / Detalles de la Publicidad</label>
-                    <textarea
-                      name="mediaNotes"
-                      rows={3}
-                      placeholder="Ej. Video promocional de 1 min con fechas y costo..."
-                    />
-                  </div>
-                </>
-              )}
+              <div className="form-group">
+                <label>Autor / Artista</label>
+                <input type="text" name="author" placeholder="Ej. En Espíritu y En Verdad / Miel San Marcos" required />
+              </div>
 
               <div className="form-group">
-                <label>Fecha del Culto o Límite de Entrega</label>
+                <label>¿Quién dirige esa semana? / Líder de Alabanza</label>
+                <input type="text" name="leaderName" placeholder="Ej. Carlos Ruiz" required />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha del Culto</label>
                 <input type="date" name="eventDate" required />
               </div>
 
               <div className="modal-actions">
-                <button type="button" className="secondary-button" onClick={() => setShowModal(false)}>
+                <button type="button" className="secondary-button" onClick={() => setShowWorshipModal(false)}>
                   Cancelar
                 </button>
-                <button type="submit" disabled={isPending} className="primary-button">
-                  {isPending ? 'Guardando...' : 'Crear Ticket'}
+                <button type="submit" disabled={isWorshipPending} className="primary-button" style={{ backgroundColor: '#ea580c' }}>
+                  {isWorshipPending ? 'Guardando...' : 'Crear Ticket de Alabanza'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Petición de Publicidad / Media */}
+      {showMediaModal && (
+        <div className="modal-backdrop" onClick={() => setShowMediaModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>🎬 Petición de Publicidad y Producción</h2>
+              <button className="action-btn" onClick={() => setShowMediaModal(false)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form
+              action={async (formData) => {
+                await mediaFormAction(formData);
+                setShowMediaModal(false);
+              }}
+            >
+              <div className="form-group">
+                <label>Título del Proyecto / Anuncio</label>
+                <input type="text" name="title" placeholder="Ej. Campamento Juvenil 2026" required />
+              </div>
+
+              <div className="form-group">
+                <label>¿Para qué actividad o ministerio es?</label>
+                <input type="text" name="ministryActivity" placeholder="Ej. Ministerio de Jóvenes / Evangelismo" required />
+              </div>
+
+              <div className="form-group">
+                <label>Indicaciones (Formatos, Colores, Estilo)</label>
+                <textarea
+                  name="mediaNotes"
+                  rows={3}
+                  placeholder="Ej. Video promocional de 1 min, colores vivos, incluir costo de inscripción..."
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha de la Actividad / Evento</label>
+                <input
+                  type="date"
+                  name="activityDate"
+                  value={activityDate}
+                  onChange={(e) => handleActivityDateChange(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha Límite de Entrega Requerida</label>
+                <input
+                  type="date"
+                  name="deliveryDate"
+                  value={deliveryDate}
+                  onChange={(e) => handleDeliveryDateChange(e.target.value)}
+                  required
+                />
+                {suggestedDate && (
+                  <small style={{ color: '#4b5563', fontSize: '0.78rem', marginTop: '4px', display: 'block' }}>
+                    💡 Fecha recomendada de entrega (3 días antes): <strong>{suggestedDate}</strong>
+                  </small>
+                )}
+              </div>
+
+              {isTightDeadline && (
+                <div
+                  style={{
+                    backgroundColor: '#fffbeb',
+                    border: '1px solid #fde68a',
+                    color: '#b45309',
+                    padding: '10px 14px',
+                    borderRadius: '8px',
+                    fontSize: '0.82rem',
+                    marginBottom: '16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}
+                >
+                  <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>warning</span>
+                  <span>
+                    <strong>Sugerencia de Producción:</strong> Para evitar retrasos, la entrega debe solicitarse al menos 3 días antes del evento (Recomendado: {suggestedDate}).
+                  </span>
+                </div>
+              )}
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-button" onClick={() => setShowMediaModal(false)}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isMediaPending} className="primary-button" style={{ backgroundColor: '#4338ca' }}>
+                  {isMediaPending ? 'Guardando...' : 'Crear Petición de Publicidad'}
                 </button>
               </div>
             </form>
