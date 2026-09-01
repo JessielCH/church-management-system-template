@@ -120,27 +120,28 @@ export default function CalendarioPage() {
 
       <div className="content-card" style={{ padding: '24px' }}>
         {/* Calendar Header Controls */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'wrap', gap: '12px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button className="icon-button" onClick={prevMonth} style={{ backgroundColor: '#f3f4f6' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px', flexWrap: 'nowrap', gap: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button className="icon-button" onClick={prevMonth} style={{ backgroundColor: '#f3f4f6', flexShrink: 0 }}>
               <span className="material-symbols-outlined">chevron_left</span>
             </button>
-            <h2 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '800', color: '#1b1f3b', minWidth: '160px', textAlign: 'center' }}>
+            <h2 style={{ margin: 0, fontSize: 'clamp(1.1rem, 4vw, 1.4rem)', fontWeight: '800', color: '#1b1f3b', textAlign: 'center' }}>
               {monthNames[currentMonthIndex]} {currentYear}
             </h2>
-            <button className="icon-button" onClick={nextMonth} style={{ backgroundColor: '#f3f4f6' }}>
+            <button className="icon-button" onClick={nextMonth} style={{ backgroundColor: '#f3f4f6', flexShrink: 0 }}>
               <span className="material-symbols-outlined">chevron_right</span>
             </button>
           </div>
           <button 
             onClick={goToday} 
             style={{ 
-              padding: '8px 16px', 
+              padding: '6px 12px', 
               borderRadius: '8px', 
               border: '1px solid var(--borde)', 
               backgroundColor: '#ffffff', 
               fontWeight: '600', 
-              cursor: 'pointer' 
+              cursor: 'pointer',
+              flexShrink: 0
             }}
           >
             Hoy

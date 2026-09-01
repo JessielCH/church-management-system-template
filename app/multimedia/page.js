@@ -434,7 +434,7 @@ export default function MultimediaPage() {
               <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay eventos programados en el calendario multimedia.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '20px' }}>
               {tickets.map((t) => (
                 <div
                   key={t.id}
@@ -444,9 +444,10 @@ export default function MultimediaPage() {
                     border: '1px solid var(--borde)',
                     backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
+                    wordBreak: 'break-word'
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px', flexWrap: 'wrap', gap: '8px' }}>
                     <span
                       style={{
                         fontSize: '0.78rem',
@@ -467,7 +468,7 @@ export default function MultimediaPage() {
                   <h4 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: '700', color: '#1b1f3b' }}>{t.title}</h4>
                   <p style={{ margin: 0, fontSize: '0.85rem', color: '#4b5563', lineHeight: '1.5' }}>{t.description}</p>
 
-                  <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--borde)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--borde)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                     <span style={{ fontSize: '0.8rem', color: '#4f46e5', fontWeight: '600' }}>
                       👤 Encargado: {t.assignedTo || 'Sin Asignar'}
                     </span>
