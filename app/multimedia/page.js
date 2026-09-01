@@ -8,11 +8,13 @@ import {
   updateTicketStatusAction,
   assignTicketAction,
 } from '@/app/actions/ticketActions';
+import { getSession } from '@/app/actions/authActions';
 
 export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
   const [showWorshipModal, setShowWorshipModal] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
+  const [userRole, setUserRole] = useState('');
   const [tickets, setTickets] = useState([]);
 
   // Dates logic for Media Request (3 days before suggestion)
@@ -25,13 +27,21 @@ export default function MultimediaPage() {
   const [mediaState, mediaFormAction, isMediaPending] = useActionState(createMediaRequestAction, null);
 
   useEffect(() => {
-    async function loadTickets() {
+    async function init() {
+      const session = await getSession();
+      if (session) {
+        setUserRole(session.role);
+        // If pastor/coordinator/secretary, default active tab to media requests
+        if (['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(session.role)) {
+          setActiveTab('media');
+        }
+      }
       const res = await getTicketsAction();
       if (res?.success) {
         setTickets(res.tickets || []);
       }
     }
-    loadTickets();
+    init();
   }, [worshipState, mediaState]);
 
   // Suggest 3-day deadline automatically
@@ -95,20 +105,27 @@ export default function MultimediaPage() {
   const worshipTickets = tickets.filter((t) => t.category === 'WORSHIP_SONG');
   const mediaTickets = tickets.filter((t) => t.category === 'MEDIA_REQUEST');
 
+  // Pastor, Coordinator, and Secretary cannot create worship song tickets (only Leader / Multimedia)
+  const canCreateWorshipTicket = !['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(userRole);
+
   return (
     <div>
       <div className="welcome-section" style={{ marginBottom: '28px' }}>
         <div>
-          <h1>Módulo Multimedia y Proyección</h1>
+          <h1>Módulo Multimedia y Publicidades</h1>
           <p>Gestión de tickets de letras para proyección en cultos y peticiones de publicidad semanal.</p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <button className="primary-button" onClick={() => setShowWorshipModal(true)} style={{ backgroundColor: '#ea580c' }}>
-            <span className="material-symbols-outlined">queue_music</span>
-            + Ticket de Alabanza
-          </button>
+          {/* Worship Ticket Button (Only for Worship Leaders & Multimedia) */}
+          {canCreateWorshipTicket && (
+            <button className="primary-button" onClick={() => setShowWorshipModal(true)} style={{ backgroundColor: '#ea580c' }}>
+              <span className="material-symbols-outlined">queue_music</span>
+              + Ticket de Alabanza
+            </button>
+          )}
 
+          {/* Publicity Request Button (Available for Pastor, Secretary, Coordinator, Leaders) */}
           <button className="primary-button" onClick={() => setShowMediaModal(true)} style={{ backgroundColor: '#4338ca' }}>
             <span className="material-symbols-outlined">campaign</span>
             + Petición de Publicidad
@@ -156,7 +173,11 @@ export default function MultimediaPage() {
               <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>queue_music</span>
                 <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay alabanzas registradas en la cola.</p>
-                <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y director de esta semana.</p>
+                <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>
+                  {canCreateWorshipTicket
+                    ? 'Presiona "+ Ticket de Alabanza" para ingresar el título, autor y director de esta semana.'
+                    : 'Los tickets de alabanzas son gestionados por el Director de Alabanza / Equipo de Multimedia.'}
+                </p>
               </div>
             ) : (
               worshipTickets.map((t) => (
@@ -437,8 +458,8 @@ export default function MultimediaPage() {
         </div>
       )}
 
-      {/* MODAL 1: Ticket de Alabanza */}
-      {showWorshipModal && (
+      {/* MODAL 1: Ticket de Alabanza (Only for Worship Leaders & Multimedia) */}
+      {showWorshipModal && canCreateWorshipTicket && (
         <div className="modal-backdrop" onClick={() => setShowWorshipModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">

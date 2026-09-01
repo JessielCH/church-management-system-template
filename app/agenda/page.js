@@ -1,10 +1,18 @@
 'use client';
 
 import { useState, useActionState, useEffect } from 'react';
-import { getEventsAction, createEventAction } from '@/app/actions/agendaActions';
+import {
+  getEventsAction,
+  createEventAction,
+  updateEventAction,
+  deleteEventAction,
+} from '@/app/actions/agendaActions';
+import { getSession } from '@/app/actions/authActions';
 
 export default function AgendaPage() {
   const [showModal, setShowModal] = useState(false);
+  const [editingEvent, setEditingEvent] = useState(null);
+  const [userRole, setUserRole] = useState('');
   const [events, setEvents] = useState([]);
   const [reminders, setReminders] = useState({
     none: false,
@@ -13,17 +21,22 @@ export default function AgendaPage() {
     oneWeek: false,
   });
 
-  const [state, formAction, isPending] = useActionState(createEventAction, null);
+  const [createState, formAction, isPending] = useActionState(createEventAction, null);
+  const [updateState, updateFormAction, isUpdatePending] = useActionState(updateEventAction, null);
 
   useEffect(() => {
-    async function loadEvents() {
+    async function init() {
+      const session = await getSession();
+      if (session) {
+        setUserRole(session.role);
+      }
       const res = await getEventsAction();
       if (res?.success) {
         setEvents(res.events || []);
       }
     }
-    loadEvents();
-  }, [state]);
+    init();
+  }, [createState, updateState]);
 
   const handleReminderChange = (key) => {
     if (key === 'none') {
@@ -42,6 +55,15 @@ export default function AgendaPage() {
     }
   };
 
+  const handleDelete = async (id) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar este evento de la agenda?')) {
+      setEvents((prev) => prev.filter((e) => e.id !== id));
+      await deleteEventAction(id);
+    }
+  };
+
+  const isAllowedAdmin = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'ADMIN'].includes(userRole);
+
   return (
     <div>
       <div className="welcome-section" style={{ marginBottom: '32px' }}>
@@ -49,10 +71,12 @@ export default function AgendaPage() {
           <h1>Agenda Pastoral</h1>
           <p>Gestión de actividades, visitas pastorales y notificaciones por WhatsApp.</p>
         </div>
-        <button className="primary-button" onClick={() => setShowModal(true)}>
-          <span className="material-symbols-outlined">event</span>
-          + Nuevo Evento / Cita
-        </button>
+        {isAllowedAdmin && (
+          <button className="primary-button" onClick={() => setShowModal(true)}>
+            <span className="material-symbols-outlined">event</span>
+            + Nuevo Evento / Cita
+          </button>
+        )}
       </div>
 
       {/* KPI Summary Cards */}
@@ -80,7 +104,7 @@ export default function AgendaPage() {
         </div>
       </div>
 
-      {/* Events List */}
+      {/* Events List with Admin Edit & Delete Actions */}
       <div className="content-card">
         <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#1b1f3b' }}>
           <span className="material-symbols-outlined text-vivid" style={{ fontSize: '26px' }}>calendar_month</span>
@@ -139,6 +163,28 @@ export default function AgendaPage() {
                   <span className="tag" style={{ backgroundColor: '#f3f4f6', color: '#374151', padding: '6px 12px', borderRadius: '20px', fontWeight: '600', fontSize: '0.8rem' }}>
                     {item.type || 'SERVICIO'}
                   </span>
+
+                  {/* Admin CRUD Actions */}
+                  {isAllowedAdmin && (
+                    <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        className="action-btn"
+                        onClick={() => setEditingEvent(item)}
+                        title="Editar Evento"
+                        style={{ color: '#4338ca', borderColor: '#e0e7ff', backgroundColor: '#e0e7ff' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+                      </button>
+                      <button
+                        className="action-btn"
+                        onClick={() => handleDelete(item.id)}
+                        title="Eliminar Evento"
+                        style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))
@@ -146,7 +192,7 @@ export default function AgendaPage() {
         </div>
       </div>
 
-      {/* Modal New Event with Multi-choice WhatsApp Reminders */}
+      {/* Modal 1: New Event */}
       {showModal && (
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -251,6 +297,77 @@ export default function AgendaPage() {
                 </button>
                 <button type="submit" disabled={isPending} className="primary-button">
                   {isPending ? 'Guardando...' : 'Guardar Evento'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal 2: Edit Event */}
+      {editingEvent && (
+        <div className="modal-backdrop" onClick={() => setEditingEvent(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Editar Evento de la Agenda</h2>
+              <button className="action-btn" onClick={() => setEditingEvent(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form
+              action={async (formData) => {
+                await updateFormAction(formData);
+                setEditingEvent(null);
+              }}
+            >
+              <input type="hidden" name="id" value={editingEvent.id} />
+
+              <div className="form-group">
+                <label>Título del Evento / Visita</label>
+                <input
+                  type="text"
+                  name="title"
+                  defaultValue={editingEvent.title}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha y Hora</label>
+                <input
+                  type="datetime-local"
+                  name="date"
+                  defaultValue={new Date(editingEvent.date).toISOString().slice(0, 16)}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Lugar / Dirección</label>
+                <input
+                  type="text"
+                  name="location"
+                  defaultValue={editingEvent.location}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Tipo de Actividad</label>
+                <select name="type" defaultValue={editingEvent.type || 'SERVICE'}>
+                  <option value="SERVICE">Culto / Servicio</option>
+                  <option value="PASTORAL">Visita Pastoral</option>
+                  <option value="TEACHING">Discipulado / Enseñanza</option>
+                  <option value="MEETING">Reunión de Liderazgo</option>
+                </select>
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-button" onClick={() => setEditingEvent(null)}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isUpdatePending} className="primary-button" style={{ backgroundColor: '#4338ca' }}>
+                  {isUpdatePending ? 'Actualizando...' : 'Guardar Cambios'}
                 </button>
               </div>
             </form>
