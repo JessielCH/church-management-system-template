@@ -4,15 +4,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log('Seeding initial church database records...');
 
-  // Create Admin User
+  // Create Admin User with Username (No email required)
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@church.org' },
+    where: { username: 'admin' },
     update: {},
     create: {
-      email: 'admin@church.org',
+      username: 'admin',
       name: 'Pastor Principal',
       passwordHash: 'hashed_password_placeholder',
       role: 'PASTOR',
+      mustChangePassword: true,
     },
   });
 

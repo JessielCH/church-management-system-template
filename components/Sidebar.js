@@ -3,9 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { logoutAction } from '@/app/actions/authActions';
 
 export default function Sidebar() {
   const pathname = usePathname();
+
+  // Do not render Sidebar on Login or Change Password pages
+  if (pathname === '/login' || pathname === '/change-password') {
+    return null;
+  }
 
   const navItems = [
     { name: 'Dashboard', href: '/', icon: 'dashboard' },
@@ -44,12 +50,22 @@ export default function Sidebar() {
           <span className="material-symbols-outlined">settings</span>
           <span>Configuración</span>
         </Link>
-        <div className="user-profile">
-          <div className="avatar">P</div>
-          <div className="user-info">
-            <strong>Pastor Admin</strong>
-            <span>Administrador</span>
+        <div className="user-profile" style={{ justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="avatar">P</div>
+            <div className="user-info">
+              <strong>Pastor Admin</strong>
+              <span>Pastor / Admin</span>
+            </div>
           </div>
+          <button
+            onClick={() => logoutAction()}
+            title="Cerrar Sesión"
+            className="action-btn"
+            style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
+          </button>
         </div>
       </div>
     </aside>

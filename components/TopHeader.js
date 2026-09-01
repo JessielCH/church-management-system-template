@@ -1,10 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 
 export default function TopHeader() {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+  const pathname = usePathname();
+
+  // Do not render TopHeader on Login or Change Password pages
+  if (pathname === '/login' || pathname === '/change-password') {
+    return null;
+  }
 
   return (
     <header className="top-header">

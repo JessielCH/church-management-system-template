@@ -40,14 +40,16 @@ enum EventType {
 }
 
 model User {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String
-  name         String
-  role         Role       @default(LEADER)
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  followUps    FollowUp[] @relation("ConsolidatorFollowUps")
+  id                 String     @id @default(uuid())
+  username           String     @unique
+  email              String?
+  passwordHash       String
+  name               String
+  role               Role       @default(LEADER)
+  mustChangePassword Boolean    @default(true)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  followUps          FollowUp[] @relation("ConsolidatorFollowUps")
 }
 
 model Member {
