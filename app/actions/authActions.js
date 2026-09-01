@@ -34,11 +34,11 @@ export async function loginAction(prevState, formData) {
   // Dev fallbacks for quick testing if database is offline
   if (!user) {
     const mockUsers = {
-      admin: { name: 'Coordinador General', role: 'COORDINADOR', pass: 'admin123' },
-      pastor1: { name: 'Pr. Carlos Mendoza', role: 'PASTOR', pass: 'pastor1' },
-      secretaria1: { name: 'Ana María Secretaria', role: 'SECRETARIA', pass: 'secretaria1' },
-      multimedia1: { name: 'Equipo Multimedia', role: 'MULTIMEDIA', pass: 'multimedia1' },
-      lider1: { name: 'Líder Alabanza', role: 'LEADER', pass: 'lider1' },
+      admin: { name: 'admin', role: 'COORDINADOR', pass: 'admin123' },
+      pastor1: { name: 'pastor1', role: 'PASTOR', pass: 'pastor1' },
+      secretaria1: { name: 'secretaria1', role: 'SECRETARIA', pass: 'secretaria1' },
+      multimedia1: { name: 'multimedia1', role: 'MULTIMEDIA', pass: 'multimedia1' },
+      lider1: { name: 'lider1', role: 'LEADER', pass: 'lider1' },
     };
 
     const mock = mockUsers[username];

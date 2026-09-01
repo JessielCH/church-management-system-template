@@ -1,12 +1,24 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutAction } from '@/app/actions/authActions';
+import { logoutAction, getSession } from '@/app/actions/authActions';
 
 export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
   const pathname = usePathname();
+  const [userName, setUserName] = useState('');
+
+  useEffect(() => {
+    async function loadUser() {
+      const session = await getSession();
+      if (session) {
+        setUserName(session.name || session.username || 'Usuario');
+      }
+    }
+    loadUser();
+  }, []);
 
   if (pathname === '/login' || pathname === '/change-password') {
     return null;
@@ -26,12 +38,37 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Image src="/images/LOGOIEBB.png" alt="IEBB Logo" width={40} height={40} style={{ borderRadius: '8px', flexShrink: 0, objectFit: 'contain' }} />
+          {/* White Badge Container to make LOGOIEBB.png pop out sharply */}
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              padding: '4px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
+              flexShrink: 0,
+            }}
+          >
+            <Image
+              src="/images/LOGOIEBB.png"
+              alt="IEBB Logo"
+              width={34}
+              height={34}
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
+
           {!isCollapsed && (
             <div>
-              <h2 style={{ fontSize: '1.05rem', margin: 0, color: '#ffffff', lineHeight: 1.2 }}>IEBB Esperanza</h2>
-              <span style={{ fontSize: '0.68rem', color: '#f6c981', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Esperanza en Dios
+              {/* White text for user's name */}
+              <h2 style={{ fontSize: '1rem', margin: 0, color: '#ffffff', fontWeight: '700', lineHeight: 1.2 }}>
+                {userName || 'pastor1'}
+              </h2>
+              {/* Gold subtitle for IEBB ESPERANZA EN DIOS */}
+              <span style={{ fontSize: '0.66rem', color: '#f6c981', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginTop: '2px' }}>
+                IEBB ESPERANZA EN DIOS
               </span>
             </div>
           )}
@@ -81,10 +118,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
         {!isCollapsed && (
           <div className="user-profile" style={{ justifyContent: 'space-between' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div className="avatar">E</div>
+              <div className="avatar">
+                {userName ? userName.charAt(0).toUpperCase() : 'U'}
+              </div>
               <div className="user-info">
-                <strong>IEBB Esperanza</strong>
-                <span>Gestión Ministerial</span>
+                <strong>{userName || 'Usuario'}</strong>
+                <span>IEBB Esperanza</span>
               </div>
             </div>
             <button

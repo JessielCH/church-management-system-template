@@ -55,20 +55,20 @@ body {
 /* Sidebar */
 .sidebar {
     width: 260px;
-    background-color: var(--azul-negro);
+    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
     color: var(--blanco-naturaleza);
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 10px rgba(0, 0, 0, 0.05);
+    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
     z-index: 10;
 }
 
 .sidebar-header {
-    padding: 24px;
+    padding: 20px 24px;
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-header h2 {
