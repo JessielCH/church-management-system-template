@@ -7,13 +7,18 @@ import {
   createMediaRequestAction,
   updateTicketStatusAction,
   assignTicketAction,
+  updateTicketAction,
+  deleteTicketAction,
 } from '@/app/actions/ticketActions';
 import { getSession } from '@/app/actions/authActions';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
   const [showWorshipModal, setShowWorshipModal] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
+  const [editingTicket, setEditingTicket] = useState(null);
+  const [deletingTicketId, setDeletingTicketId] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [username, setUsername] = useState('');
   const [tickets, setTickets] = useState([]);
@@ -26,6 +31,7 @@ export default function MultimediaPage() {
 
   const [worshipState, worshipFormAction, isWorshipPending] = useActionState(createWorshipTicketAction, null);
   const [mediaState, mediaFormAction, isMediaPending] = useActionState(createMediaRequestAction, null);
+  const [updateState, updateTicketFormAction, isUpdatePending] = useActionState(updateTicketAction, null);
 
   useEffect(() => {
     async function init() {
@@ -33,7 +39,6 @@ export default function MultimediaPage() {
       if (session) {
         setUserRole(session.role);
         setUsername(session.username);
-        // If pastor/coordinator/secretary, default active tab to media requests
         if (['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(session.role)) {
           setActiveTab('media');
         }
@@ -44,7 +49,7 @@ export default function MultimediaPage() {
       }
     }
     init();
-  }, [worshipState, mediaState]);
+  }, [worshipState, mediaState, updateState]);
 
   // Suggest 3-day deadline automatically
   const handleActivityDateChange = (val) => {
@@ -103,13 +108,22 @@ export default function MultimediaPage() {
     await assignTicketAction(id, assignedTo);
   };
 
+  const handleConfirmDeleteTicket = async () => {
+    if (deletingTicketId) {
+      const targetId = deletingTicketId;
+      setDeletingTicketId(null);
+      setTickets((prev) => prev.filter((t) => t.id !== targetId));
+      await deleteTicketAction(targetId);
+    }
+  };
+
   const worshipTickets = tickets.filter((t) => t.category === 'WORSHIP_SONG');
   const mediaTickets = tickets.filter((t) => t.category === 'MEDIA_REQUEST');
 
   // Pastor, Coordinator, and Secretary cannot create worship song tickets (only Leader / Multimedia)
   const canCreateWorshipTicket = !['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(userRole);
 
-  // Only multimedia_admin (or ADMIN role) can assign tickets to operators
+  // Only multimedia_admin (or ADMIN role) can assign tickets, edit tickets, or delete tickets
   const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN';
 
   return (
@@ -213,9 +227,33 @@ export default function MultimediaPage() {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
-                      Culto: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
+                        Culto: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                      </div>
+
+                      {/* Multimedia Admin Edit & Delete CRUD Action Buttons */}
+                      {isMultimediaAdmin && (
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            className="action-btn"
+                            onClick={() => setEditingTicket(t)}
+                            title="Editar Ticket de Alabanza"
+                            style={{ color: '#4338ca', borderColor: '#e0e7ff', backgroundColor: '#e0e7ff' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+                          </button>
+                          <button
+                            className="action-btn"
+                            onClick={() => setDeletingTicketId(t.id)}
+                            title="Eliminar Ticket de Alabanza"
+                            style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -308,9 +346,33 @@ export default function MultimediaPage() {
                       </div>
                     </div>
 
-                    <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
-                      Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
+                        Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                      </div>
+
+                      {/* Multimedia Admin Edit & Delete CRUD Action Buttons */}
+                      {isMultimediaAdmin && (
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button
+                            className="action-btn"
+                            onClick={() => setEditingTicket(t)}
+                            title="Editar Publicidad"
+                            style={{ color: '#4338ca', borderColor: '#e0e7ff', backgroundColor: '#e0e7ff' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>edit</span>
+                          </button>
+                          <button
+                            className="action-btn"
+                            onClick={() => setDeletingTicketId(t.id)}
+                            title="Eliminar Publicidad"
+                            style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
+                          >
+                            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>delete</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -425,6 +487,16 @@ export default function MultimediaPage() {
           )}
         </div>
       )}
+
+      {/* Custom UI Ticket Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deletingTicketId}
+        title="¿Eliminar Ticket de Multimedia?"
+        message="Esta acción no se puede deshacer. Se eliminará el ticket o solicitud permanentemente."
+        confirmText="Sí, Eliminar Ticket"
+        onConfirm={handleConfirmDeleteTicket}
+        onClose={() => setDeletingTicketId(null)}
+      />
 
       {/* MODAL 1: Ticket de Alabanza (Only for Worship Leaders & Multimedia) */}
       {showWorshipModal && canCreateWorshipTicket && (
@@ -567,6 +639,66 @@ export default function MultimediaPage() {
                 </button>
                 <button type="submit" disabled={isMediaPending} className="primary-button" style={{ backgroundColor: '#4338ca' }}>
                   {isMediaPending ? 'Guardando...' : 'Crear Petición de Publicidad'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Edit Ticket (Exclusive for multimedia_admin) */}
+      {editingTicket && isMultimediaAdmin && (
+        <div className="modal-backdrop" onClick={() => setEditingTicket(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Editar Ticket de Multimedia</h2>
+              <button className="action-btn" onClick={() => setEditingTicket(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+
+            <form
+              action={async (formData) => {
+                await updateTicketFormAction(formData);
+                setEditingTicket(null);
+              }}
+            >
+              <input type="hidden" name="id" value={editingTicket.id} />
+
+              <div className="form-group">
+                <label>Título del Ticket / Proyecto</label>
+                <input
+                  type="text"
+                  name="title"
+                  defaultValue={editingTicket.title}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Detalles / Indicaciones</label>
+                <textarea
+                  name="description"
+                  rows={3}
+                  defaultValue={editingTicket.description || ''}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Fecha de Entrega / Evento</label>
+                <input
+                  type="date"
+                  name="eventDate"
+                  defaultValue={editingTicket.eventDate ? new Date(editingTicket.eventDate).toISOString().split('T')[0] : ''}
+                />
+              </div>
+
+              <div className="modal-actions">
+                <button type="button" className="secondary-button" onClick={() => setEditingTicket(null)}>
+                  Cancelar
+                </button>
+                <button type="submit" disabled={isUpdatePending} className="primary-button" style={{ backgroundColor: '#4338ca' }}>
+                  {isUpdatePending ? 'Guardando...' : 'Guardar Cambios'}
                 </button>
               </div>
             </form>

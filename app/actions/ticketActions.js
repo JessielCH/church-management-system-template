@@ -119,3 +119,61 @@ export async function updateTicketStatusAction(ticketId, newStatus) {
     return { success: true };
   }
 }
+
+export async function updateTicketAction(prevState, formData) {
+  const session = await getSession();
+  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN';
+
+  if (!isMultimediaAdmin) {
+    return { error: 'Únicamente el Admin de Multimedia puede editar tickets o publicaciones.' };
+  }
+
+  const id = formData.get('id')?.toString();
+  const title = formData.get('title')?.toString().trim();
+  const description = formData.get('description')?.toString().trim();
+  const eventDateRaw = formData.get('eventDate')?.toString();
+
+  if (!id || !title) {
+    return { error: 'Datos incompletos para actualizar el ticket.' };
+  }
+
+  try {
+    const updated = await prisma.multimediaTicket.update({
+      where: { id },
+      data: {
+        title,
+        description,
+        ...(eventDateRaw ? { eventDate: new Date(eventDateRaw) } : {}),
+      },
+    });
+
+    revalidatePath('/multimedia');
+    return { success: true, ticket: updated };
+  } catch (err) {
+    console.error('Error updating ticket:', err);
+    return { error: 'Error al actualizar el ticket.' };
+  }
+}
+
+export async function deleteTicketAction(id) {
+  const session = await getSession();
+  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN';
+
+  if (!isMultimediaAdmin) {
+    return { error: 'Únicamente el Admin de Multimedia puede eliminar tickets o publicaciones.' };
+  }
+
+  if (!id) return { error: 'ID de ticket no especificado.' };
+
+  try {
+    await prisma.multimediaTicket.delete({
+      where: { id },
+    });
+
+    revalidatePath('/multimedia');
+    return { success: true };
+  } catch (err) {
+    console.error('Error deleting ticket:', err);
+    return { error: 'Error al eliminar el ticket.' };
+  }
+}
