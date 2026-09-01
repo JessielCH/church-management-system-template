@@ -7,15 +7,18 @@ export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
   const [showModal, setShowModal] = useState(false);
   const [tickets, setTickets] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const [state, formAction, isPending] = useActionState(createTicketAction, null);
 
   useEffect(() => {
     async function loadTickets() {
+      setLoading(true);
       const res = await getTicketsAction();
       if (res?.success) {
-        setTickets(res.tickets);
+        setTickets(res.tickets || []);
       }
+      setLoading(false);
     }
     loadTickets();
   }, [state]);
@@ -33,7 +36,7 @@ export default function MultimediaPage() {
 
   return (
     <div className="main-content">
-      <div className="page-header flex-between">
+      <div className="page-header flex-between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>
           <h1>Módulo Multimedia y Proyección de Alabanzas</h1>
           <p className="subtitle">Gestión de tickets de letras para proyección en cultos y peticiones de producción semanal.</p>
@@ -44,15 +47,11 @@ export default function MultimediaPage() {
         </button>
       </div>
 
-      {/* Tabs */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', borderBottom: '1px solid #e5e7eb', paddingBottom: '8px' }}>
+      {/* Tabs Bar */}
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
         <button
           onClick={() => setActiveTab('worship')}
-          className={`secondary-button ${activeTab === 'worship' ? 'active' : ''}`}
-          style={{
-            backgroundColor: activeTab === 'worship' ? '#1b1f3b' : 'transparent',
-            color: activeTab === 'worship' ? '#ffffff' : '#4b5563',
-          }}
+          className={`tab-button ${activeTab === 'worship' ? 'active' : ''}`}
         >
           <span className="material-symbols-outlined">queue_music</span>
           Proyección de Alabanzas ({worshipTickets.length})
@@ -60,11 +59,7 @@ export default function MultimediaPage() {
 
         <button
           onClick={() => setActiveTab('media')}
-          className={`secondary-button ${activeTab === 'media' ? 'active' : ''}`}
-          style={{
-            backgroundColor: activeTab === 'media' ? '#1b1f3b' : 'transparent',
-            color: activeTab === 'media' ? '#ffffff' : '#4b5563',
-          }}
+          className={`tab-button ${activeTab === 'media' ? 'active' : ''}`}
         >
           <span className="material-symbols-outlined">video_library</span>
           Producción de Video y Gráfica ({mediaTickets.length})
@@ -72,11 +67,7 @@ export default function MultimediaPage() {
 
         <button
           onClick={() => setActiveTab('calendar')}
-          className={`secondary-button ${activeTab === 'calendar' ? 'active' : ''}`}
-          style={{
-            backgroundColor: activeTab === 'calendar' ? '#1b1f3b' : 'transparent',
-            color: activeTab === 'calendar' ? '#ffffff' : '#4b5563',
-          }}
+          className={`tab-button ${activeTab === 'calendar' ? 'active' : ''}`}
         >
           <span className="material-symbols-outlined">calendar_today</span>
           Calendario de Entregas
@@ -93,7 +84,11 @@ export default function MultimediaPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {worshipTickets.length === 0 ? (
-              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>No hay alabanzas pendientes en la cola de proyección.</p>
+              <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>queue_music</span>
+                <p style={{ margin: 0, fontWeight: '600' }}>No hay alabanzas registradas en la cola.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Nuevo Ticket / Solicitud" para enviar canciones para proyectar en el próximo culto.</p>
+              </div>
             ) : (
               worshipTickets.map((t) => (
                 <div
@@ -104,7 +99,7 @@ export default function MultimediaPage() {
                     justifyContent: 'space-between',
                     padding: '16px',
                     borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--borde)',
                     backgroundColor: '#ffffff',
                   }}
                 >
@@ -119,6 +114,7 @@ export default function MultimediaPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        flexShrink: 0,
                       }}
                     >
                       <span className="material-symbols-outlined">queue_music</span>
@@ -172,7 +168,11 @@ export default function MultimediaPage() {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {mediaTickets.length === 0 ? (
-              <p style={{ color: '#6b7280', fontSize: '0.9rem' }}>No hay solicitudes de publicidad o video pendientes.</p>
+              <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>video_library</span>
+                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de video o publicidad pendientes.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones multimedia usando el botón superior.</p>
+              </div>
             ) : (
               mediaTickets.map((t) => (
                 <div
@@ -183,7 +183,7 @@ export default function MultimediaPage() {
                     justifyContent: 'space-between',
                     padding: '16px',
                     borderRadius: '12px',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid var(--borde)',
                     backgroundColor: '#ffffff',
                   }}
                 >
@@ -198,6 +198,7 @@ export default function MultimediaPage() {
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
+                        flexShrink: 0,
                       }}
                     >
                       <span className="material-symbols-outlined">video_settings</span>
@@ -249,55 +250,67 @@ export default function MultimediaPage() {
             Calendario de Entregas para Cultos y Eventos
           </h3>
           <p style={{ color: '#6b7280', fontSize: '0.88rem', marginBottom: '16px' }}>
-            Visualización de fechas límite para proyección de alabanzas y videos de anuncios (sin notificaciones de WhatsApp).
+            Fechas límite de entrega para proyección de alabanzas y anuncios (sin notificaciones de WhatsApp).
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
-            {tickets.map((t) => (
-              <div
-                key={t.id}
-                style={{
-                  padding: '16px',
-                  borderRadius: '12px',
-                  border: '1px solid #e5e7eb',
-                  backgroundColor: '#f9fafb',
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                  <span
-                    style={{
-                      fontSize: '0.75rem',
-                      fontWeight: '700',
-                      textTransform: 'uppercase',
-                      color: t.category === 'WORSHIP_SONG' ? '#ea580c' : '#4338ca',
-                    }}
-                  >
-                    {t.category === 'WORSHIP_SONG' ? '🎵 Alabanza' : '🎬 Producción'}
-                  </span>
-                  <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-                    Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
-                  </span>
+          {tickets.length === 0 ? (
+            <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>event_busy</span>
+              <p style={{ margin: 0, fontWeight: '600' }}>No hay eventos programados en el calendario multimedia.</p>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+              {tickets.map((t) => (
+                <div
+                  key={t.id}
+                  style={{
+                    padding: '16px',
+                    borderRadius: '12px',
+                    border: '1px solid var(--borde)',
+                    backgroundColor: '#f9fafb',
+                  }}
+                >
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                        color: t.category === 'WORSHIP_SONG' ? '#ea580c' : '#4338ca',
+                      }}
+                    >
+                      {t.category === 'WORSHIP_SONG' ? '🎵 Alabanza' : '🎬 Producción'}
+                    </span>
+                    <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
+                      Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                    </span>
+                  </div>
+                  <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description || 'Sin observaciones'}</p>
                 </div>
-                <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
-                <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description || 'Sin observaciones'}</p>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
       {/* Modal Ticket Creation */}
       {showModal && (
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2>Levantar Ticket Multimedia</h2>
-              <button className="icon-button" onClick={() => setShowModal(false)}>
+              <button className="action-btn" onClick={() => setShowModal(false)}>
                 <span className="material-symbols-outlined">close</span>
               </button>
             </div>
 
-            <form action={formAction}>
+            <form
+              action={async (formData) => {
+                await formAction(formData);
+                setShowModal(false);
+              }}
+            >
               <div className="form-group">
                 <label>Categoría del Ticket</label>
                 <select name="category">
@@ -317,7 +330,6 @@ export default function MultimediaPage() {
                   name="description"
                   rows={3}
                   placeholder="Ej. Tono Sol Mayor, incluir estrofas 1 a 4 y puente..."
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #e5e7eb' }}
                 />
               </div>
 
@@ -326,7 +338,7 @@ export default function MultimediaPage() {
                 <input type="date" name="eventDate" required />
               </div>
 
-              <div className="modal-actions" style={{ marginTop: '20px' }}>
+              <div className="modal-actions">
                 <button type="button" className="secondary-button" onClick={() => setShowModal(false)}>
                   Cancelar
                 </button>
