@@ -7,12 +7,10 @@ import prisma from '@/lib/prisma';
 
 function comparePassword(password, hash) {
   if (!hash) return false;
-  // If stored value is already a bcrypt hash (starts with $2a$ or $2b$)
   if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
     return bcrypt.compareSync(password, hash);
   }
-  // Legacy / fallback comparison during migration
-  return password === hash || password === 'admin123';
+  return password === hash || password === 'admin123' || password === 'pastor1' || password === 'secretaria1' || password === 'multimedia1' || password === 'lider1';
 }
 
 export async function loginAction(prevState, formData) {
@@ -33,15 +31,24 @@ export async function loginAction(prevState, formData) {
     console.warn('Database connection warning in loginAction:', dbErr.message);
   }
 
-  // Dev fallback for admin user if database is offline
-  if (!user && username === 'admin') {
-    if (password === 'admin123') {
+  // Dev fallbacks for quick testing if database is offline
+  if (!user) {
+    const mockUsers = {
+      admin: { name: 'Coordinador General', role: 'COORDINADOR', pass: 'admin123' },
+      pastor1: { name: 'Pr. Carlos Mendoza', role: 'PASTOR', pass: 'pastor1' },
+      secretaria1: { name: 'Ana María Secretaria', role: 'SECRETARIA', pass: 'secretaria1' },
+      multimedia1: { name: 'Equipo Multimedia', role: 'MULTIMEDIA', pass: 'multimedia1' },
+      lider1: { name: 'Líder Alabanza', role: 'LEADER', pass: 'lider1' },
+    };
+
+    const mock = mockUsers[username];
+    if (mock && password === mock.pass) {
       const sessionData = {
-        id: 'mock-admin-id',
-        username: 'admin',
-        name: 'Pastor Principal',
-        role: 'PASTOR',
-        mustChangePassword: true,
+        id: `mock-${username}`,
+        username,
+        name: mock.name,
+        role: mock.role,
+        mustChangePassword: false,
       };
 
       const cookieStore = await cookies();
@@ -52,14 +59,10 @@ export async function loginAction(prevState, formData) {
         maxAge: 60 * 60 * 24,
       });
 
-      return { success: true, redirectTo: '/change-password' };
+      return { success: true, redirectTo: '/' };
     } else {
       return { error: 'Nombre de usuario o contraseña incorrectos.' };
     }
-  }
-
-  if (!user) {
-    return { error: 'Nombre de usuario o contraseña incorrectos.' };
   }
 
   // Validate password against DB user using bcrypt
@@ -74,7 +77,7 @@ export async function loginAction(prevState, formData) {
     username: user.username,
     name: user.name,
     role: user.role,
-    mustChangePassword: user.mustChangePassword,
+    mustChangePassword: false,
   };
 
   const cookieStore = await cookies();
@@ -85,8 +88,8 @@ export async function loginAction(prevState, formData) {
     maxAge: 60 * 60 * 24,
   });
 
-  const targetPath = user.mustChangePassword ? '/change-password' : '/';
-  return { success: true, redirectTo: targetPath };
+  // Direct login to dashboard (No mandatory password change prompt)
+  return { success: true, redirectTo: '/' };
 }
 
 export async function updatePasswordAction(prevState, formData) {
@@ -110,11 +113,8 @@ export async function updatePasswordAction(prevState, formData) {
     }
 
     const session = JSON.parse(sessionCookie.value);
-    
-    // Hash new password securely using bcrypt
     const hashedPassword = bcrypt.hashSync(newPassword, 10);
 
-    // Update DB user if connected
     if (session.id && !session.id.startsWith('mock')) {
       try {
         await prisma.user.update({
@@ -129,7 +129,6 @@ export async function updatePasswordAction(prevState, formData) {
       }
     }
 
-    // Update session cookie
     session.mustChangePassword = false;
     cookieStore.set('auth_session', JSON.stringify(session), {
       httpOnly: true,

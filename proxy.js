@@ -31,17 +31,9 @@ export function proxy(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 2. Authenticated user visiting /login -> Redirect to /
+  // 2. Authenticated user visiting /login -> Redirect directly to /
   if (session && pathname === '/login') {
-    if (session.mustChangePassword) {
-      return NextResponse.redirect(new URL('/change-password', request.url));
-    }
     return NextResponse.redirect(new URL('/', request.url));
-  }
-
-  // 3. User with mustChangePassword: true trying to access main app -> Redirect to /change-password
-  if (session && session.mustChangePassword && pathname !== '/change-password') {
-    return NextResponse.redirect(new URL('/change-password', request.url));
   }
 
   return NextResponse.next();

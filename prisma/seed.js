@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding test user accounts for all roles with bcrypt encryption...');
+  console.log('Seeding test user accounts for all roles (mustChangePassword = false)...');
 
   const usersToSeed = [
     { username: 'pastor1', name: 'Pr. Carlos Mendoza', role: 'PASTOR', pass: 'pastor1' },
@@ -21,13 +21,14 @@ async function main() {
         passwordHash: hash,
         role: u.role,
         name: u.name,
+        mustChangePassword: false,
       },
       create: {
         username: u.username,
         name: u.name,
         passwordHash: hash,
         role: u.role,
-        mustChangePassword: true,
+        mustChangePassword: false,
       },
     });
   }
@@ -61,7 +62,7 @@ async function main() {
     ],
   });
 
-  console.log('Database seeding completed successfully for all 5 role test users.');
+  console.log('Database seeding completed successfully. Direct login enabled (no mandatory password change).');
 }
 
 main()
