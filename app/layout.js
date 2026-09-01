@@ -1,6 +1,5 @@
 import './globals.css';
-import Sidebar from '@/components/Sidebar';
-import TopHeader from '@/components/TopHeader';
+import AppLayoutWrapper from '@/components/AppLayoutWrapper';
 
 export const metadata = {
   title: 'Church Management System',
@@ -17,15 +16,7 @@ export default function RootLayout({ children }) {
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=block" rel="stylesheet" />
       </head>
       <body>
-        <div className="app-container">
-          <Sidebar />
-          <main className="main-content">
-            <TopHeader />
-            <div className="content-area">
-              {children}
-            </div>
-          </main>
-        </div>
+        <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </body>
     </html>
   );
