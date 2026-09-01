@@ -3,10 +3,19 @@
   "version": "1.0.0",
   "description": "Church Management System MVP",
   "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
     "test": "echo \"Running local tests...\"",
     "prepare": "husky install"
   },
   "devDependencies": {
     "husky": "^8.0.0"
+  },
+  "dependencies": {
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   }
 }
