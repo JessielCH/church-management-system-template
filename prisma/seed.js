@@ -3,32 +3,41 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding initial church database records with bcrypt hashed passwords...');
+  console.log('Seeding test user accounts for all roles with bcrypt encryption...');
 
-  // Hash initial temporary admin password securely ($2a$10$...)
-  const hashedAdminPassword = bcrypt.hashSync('admin123', 10);
+  const usersToSeed = [
+    { username: 'pastor1', name: 'Pr. Carlos Mendoza', role: 'PASTOR', pass: 'pastor1' },
+    { username: 'admin', name: 'Coordinador General', role: 'COORDINADOR', pass: 'admin123' },
+    { username: 'secretaria1', name: 'Ana María Secretaria', role: 'SECRETARIA', pass: 'secretaria1' },
+    { username: 'multimedia1', name: 'Equipo Multimedia', role: 'MULTIMEDIA', pass: 'multimedia1' },
+    { username: 'lider1', name: 'Líder Alabanza', role: 'LEADER', pass: 'lider1' },
+  ];
 
-  // Create Admin User with Username & bcrypt Hashed Password
-  const admin = await prisma.user.upsert({
-    where: { username: 'admin' },
-    update: {
-      passwordHash: hashedAdminPassword,
-    },
-    create: {
-      username: 'admin',
-      name: 'Pastor Principal',
-      passwordHash: hashedAdminPassword,
-      role: 'PASTOR',
-      mustChangePassword: true,
-    },
-  });
+  for (const u of usersToSeed) {
+    const hash = bcrypt.hashSync(u.pass, 10);
+    await prisma.user.upsert({
+      where: { username: u.username },
+      update: {
+        passwordHash: hash,
+        role: u.role,
+        name: u.name,
+      },
+      create: {
+        username: u.username,
+        name: u.name,
+        passwordHash: hash,
+        role: u.role,
+        mustChangePassword: true,
+      },
+    });
+  }
 
   // Create Ministries
   await prisma.ministry.createMany({
     skipDuplicates: true,
     data: [
-      { name: 'Alabanza y Adoración', description: 'Ministerio de música', leaderName: 'Carlos Ruiz' },
-      { name: 'Evangelismo', description: 'Alcance y misiones', leaderName: 'Pr. Ricardo Morales' },
+      { name: 'Alabanza y Adoración', description: 'Ministerio de música', leaderName: 'Líder Alabanza' },
+      { name: 'Evangelismo', description: 'Alcance y misiones', leaderName: 'Pr. Carlos Mendoza' },
       { name: 'Jóvenes', description: 'Ministerio juvenil', leaderName: 'Ana Mendoza' },
     ],
   });
@@ -37,8 +46,8 @@ async function main() {
   await prisma.member.createMany({
     skipDuplicates: true,
     data: [
-      { fullName: 'Pr. Ricardo Morales', identityCard: '4589201 SC', phone: '+591 710 44321', email: 'ricardo@ejemplo.org', ministry: 'Evangelismo', baptismStatus: 'BAPTIZED', status: 'ACTIVE' },
-      { fullName: 'Carlos Rodríguez', identityCard: '3940129 SC', phone: '+591 700 12345', email: 'carlos@ejemplo.org', ministry: 'Alabanza y Adoración', baptismStatus: 'PENDING', status: 'ACTIVE' },
+      { fullName: 'Pr. Carlos Mendoza', identityCard: '4589201 SC', phone: '+591 710 44321', email: 'carlos@ejemplo.org', ministry: 'Evangelismo', baptismStatus: 'BAPTIZED', status: 'ACTIVE' },
+      { fullName: 'Carlos Rodríguez', identityCard: '3940129 SC', phone: '+591 700 12345', email: 'carlos.r@ejemplo.org', ministry: 'Alabanza y Adoración', baptismStatus: 'PENDING', status: 'ACTIVE' },
       { fullName: 'María Gómez', identityCard: '5120934 SC', phone: '+591 750 98765', email: 'maria@ejemplo.org', ministry: 'Jóvenes', baptismStatus: 'NOT_BAPTIZED', status: 'PENDING' },
     ],
   });
@@ -52,7 +61,7 @@ async function main() {
     ],
   });
 
-  console.log('Database seeding completed successfully with bcrypt encryption.');
+  console.log('Database seeding completed successfully for all 5 role test users.');
 }
 
 main()

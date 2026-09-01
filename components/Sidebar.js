@@ -19,6 +19,7 @@ export default function Sidebar() {
     { name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' },
     { name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' },
     { name: 'Agenda', href: '/agenda', icon: 'event' },
+    { name: 'Multimedia', href: '/multimedia', icon: 'video_settings' },
     { name: 'Reportes', href: '/reportes', icon: 'monitoring' },
   ];
 
@@ -54,8 +55,8 @@ export default function Sidebar() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div className="avatar">P</div>
             <div className="user-info">
-              <strong>Pastor Admin</strong>
-              <span>Pastor / Admin</span>
+              <strong>Pastor / Usuario</strong>
+              <span>Gestión Activa</span>
             </div>
           </div>
           <button
