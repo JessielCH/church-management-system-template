@@ -20,11 +20,11 @@ export default function LoginPage() {
       <div style={styles.card}>
         <div style={styles.header}>
           <Image
-            src="/images/logo.svg"
+            src="/images/LOGOIEBB.png"
             alt="IEBB Logo"
-            width={72}
-            height={72}
-            style={{ borderRadius: '18px', marginBottom: '16px' }}
+            width={84}
+            height={84}
+            style={{ borderRadius: '18px', marginBottom: '16px', objectFit: 'contain' }}
           />
           <h1 style={styles.title}>IEBB Esperanza en Dios</h1>
           <p style={styles.subtitle}>Plataforma de Gestión Ministerial</p>

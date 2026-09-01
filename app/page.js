@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import prisma from '@/lib/prisma';
+import { getSession } from './actions/authActions';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,13 +45,97 @@ async function getDashboardData() {
 
 export default async function DashboardPage() {
   const data = await getDashboardData();
+  const session = await getSession();
+
+  // Dynamic time-based greeting
+  const currentHour = new Date().getHours();
+  let timeGreeting = '¡Buenos días';
+  let timeIcon = 'wb_twilight';
+
+  if (currentHour >= 12 && currentHour < 19) {
+    timeGreeting = '¡Buenas tardes';
+    timeIcon = 'wb_sunny';
+  } else if (currentHour >= 19 || currentHour < 5) {
+    timeGreeting = '¡Buenas noches';
+    timeIcon = 'bedtime';
+  }
+
+  const usernameDisplay = session?.name || session?.username || 'Servidor de Dios';
+
+  // Encouraging Scriptures list
+  const verses = [
+    {
+      text: '«Así que, hermanos míos amados, estad firmes y constantes, creciendo en la obra del Señor siempre, sabiendo que vuestro trabajo en el Señor no es en vano.»',
+      reference: '1 Corintios 15:58',
+    },
+    {
+      text: '«Y todo lo que hagáis, hacedlo de corazón, como para el Señor y no para los hombres.»',
+      reference: 'Colosenses 3:23',
+    },
+    {
+      text: '«Jehová es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar.»',
+      reference: 'Salmos 23:1-2',
+    },
+  ];
+
+  const dailyVerse = verses[Math.floor(Math.random() * verses.length)];
 
   return (
     <div className="main-content">
+      {/* Welcome Banner with Dynamic Time Greeting */}
       <div className="welcome-section flex-between">
         <div>
-          <h1>Dashboard Institucional</h1>
-          <p className="subtitle">Resumen en tiempo real del crecimiento y atención de la congregación.</p>
+          <h1 style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span className="material-symbols-outlined text-vivid" style={{ fontSize: '32px' }}>{timeIcon}</span>
+            {timeGreeting}, {usernameDisplay}!
+          </h1>
+          <p className="subtitle">Resumen institucional y ministerial en tiempo real — IEBB Esperanza en Dios.</p>
+        </div>
+
+        <div className="date-display">
+          <span className="material-symbols-outlined">calendar_today</span>
+          <span>{new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+        </div>
+      </div>
+
+      {/* Encouraging Biblical Verse Card Banner */}
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #1b1f3b 0%, #2e3567 100%)',
+          color: '#ffffff',
+          padding: '24px 28px',
+          borderRadius: '20px',
+          marginBottom: '32px',
+          boxShadow: '0 10px 20px rgba(27, 31, 59, 0.15)',
+          position: 'relative',
+          overflow: 'hidden',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', position: 'relative', zIndex: 1 }}>
+          <div
+            style={{
+              width: '48px',
+              height: '48px',
+              borderRadius: '14px',
+              backgroundColor: 'rgba(239, 145, 46, 0.2)',
+              color: '#f6c981',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+            }}
+          >
+            <span className="material-symbols-outlined" style={{ fontSize: '26px' }}>menu_book</span>
+          </div>
+          <div>
+            <span style={{ fontSize: '0.78rem', color: '#f6c981', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              Versículo de Aliento Pastoral
+            </span>
+            <p style={{ margin: '6px 0 4px', fontSize: '1rem', fontStyle: 'italic', lineHeight: '1.5', color: '#fefefe' }}>
+              {dailyVerse.text}
+            </p>
+            <strong style={{ fontSize: '0.85rem', color: '#f6c981' }}>— {dailyVerse.reference}</strong>
+          </div>
         </div>
       </div>
 

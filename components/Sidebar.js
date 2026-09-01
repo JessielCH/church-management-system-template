@@ -26,7 +26,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <Image src="/images/logo.svg" alt="IEBB Logo" width={38} height={38} style={{ borderRadius: '8px', flexShrink: 0 }} />
+          <Image src="/images/LOGOIEBB.png" alt="IEBB Logo" width={40} height={40} style={{ borderRadius: '8px', flexShrink: 0, objectFit: 'contain' }} />
           {!isCollapsed && (
             <div>
               <h2 style={{ fontSize: '1.05rem', margin: 0, color: '#ffffff', lineHeight: 1.2 }}>IEBB Esperanza</h2>
