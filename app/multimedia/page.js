@@ -6,19 +6,17 @@ import { getTicketsAction, createTicketAction, updateTicketStatusAction } from '
 export default function MultimediaPage() {
   const [activeTab, setActiveTab] = useState('worship'); // 'worship' | 'media' | 'calendar'
   const [showModal, setShowModal] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState('WORSHIP_SONG');
   const [tickets, setTickets] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   const [state, formAction, isPending] = useActionState(createTicketAction, null);
 
   useEffect(() => {
     async function loadTickets() {
-      setLoading(true);
       const res = await getTicketsAction();
       if (res?.success) {
         setTickets(res.tickets || []);
       }
-      setLoading(false);
     }
     loadTickets();
   }, [state]);
@@ -43,7 +41,7 @@ export default function MultimediaPage() {
         </div>
         <button className="primary-button" onClick={() => setShowModal(true)}>
           <span className="material-symbols-outlined">add_task</span>
-          Nuevo Ticket / Solicitud
+          + Nuevo Ticket / Solicitud
         </button>
       </div>
 
@@ -79,7 +77,7 @@ export default function MultimediaPage() {
         <div className="content-card">
           <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
             <span className="material-symbols-outlined text-vivid">music_note</span>
-            Cola de Alabanzas para Proyectar (Letras y Tonos)
+            Cola de Alabanzas para Proyectar en Culto
           </h3>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -87,7 +85,7 @@ export default function MultimediaPage() {
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>queue_music</span>
                 <p style={{ margin: 0, fontWeight: '600' }}>No hay alabanzas registradas en la cola.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Nuevo Ticket / Solicitud" para enviar canciones para proyectar en el próximo culto.</p>
+                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Nuevo Ticket / Solicitud" para ingresar el título, autor y quién dirige.</p>
               </div>
             ) : (
               worshipTickets.map((t) => (
@@ -122,7 +120,7 @@ export default function MultimediaPage() {
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
                       <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
-                        {t.description || 'Sin notas adicionales'} • Solicitado por: <strong>{t.requestedBy}</strong>
+                        {t.description}
                       </p>
                     </div>
                   </div>
@@ -170,8 +168,7 @@ export default function MultimediaPage() {
             {mediaTickets.length === 0 ? (
               <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
                 <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>video_library</span>
-                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de video o publicidad pendientes.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones multimedia usando el botón superior.</p>
+                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de publicidad o video pendientes.</p>
               </div>
             ) : (
               mediaTickets.map((t) => (
@@ -206,7 +203,7 @@ export default function MultimediaPage() {
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
                       <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
-                        {t.description || 'Sin detalles'} • Solicitado por: <strong>{t.requestedBy}</strong>
+                        {t.description}
                       </p>
                     </div>
                   </div>
@@ -249,9 +246,6 @@ export default function MultimediaPage() {
             <span className="material-symbols-outlined text-vivid">calendar_month</span>
             Calendario de Entregas para Cultos y Eventos
           </h3>
-          <p style={{ color: '#6b7280', fontSize: '0.88rem', marginBottom: '16px' }}>
-            Fechas límite de entrega para proyección de alabanzas y anuncios (sin notificaciones de WhatsApp).
-          </p>
 
           {tickets.length === 0 ? (
             <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
@@ -286,7 +280,7 @@ export default function MultimediaPage() {
                     </span>
                   </div>
                   <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
-                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description || 'Sin observaciones'}</p>
+                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description}</p>
                 </div>
               ))}
             </div>
@@ -294,7 +288,7 @@ export default function MultimediaPage() {
         </div>
       )}
 
-      {/* Modal Ticket Creation */}
+      {/* Modal Ticket Creation with Dynamic Fields & Scroll */}
       {showModal && (
         <div className="modal-backdrop" onClick={() => setShowModal(false)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
@@ -313,25 +307,55 @@ export default function MultimediaPage() {
             >
               <div className="form-group">
                 <label>Categoría del Ticket</label>
-                <select name="category">
+                <select
+                  name="category"
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                >
                   <option value="WORSHIP_SONG">🎵 Alabanza / Letra para Proyectar</option>
                   <option value="MEDIA_REQUEST">🎬 Video de Anuncio / Gráfica / Publicidad</option>
                 </select>
               </div>
 
-              <div className="form-group">
-                <label>Título o Nombre de la Alabanza/Proyecto</label>
-                <input type="text" name="title" placeholder="Ej. Cuán Grande es Él (Tono G) o Video Campamento" required />
-              </div>
+              {selectedCategory === 'WORSHIP_SONG' ? (
+                <>
+                  <div className="form-group">
+                    <label>Título de la Alabanza</label>
+                    <input type="text" name="title" placeholder="Ej. Cuán Grande es Él" required />
+                  </div>
 
-              <div className="form-group">
-                <label>Detalles / Tonos / Observaciones</label>
-                <textarea
-                  name="description"
-                  rows={3}
-                  placeholder="Ej. Tono Sol Mayor, incluir estrofas 1 a 4 y puente..."
-                />
-              </div>
+                  <div className="form-group">
+                    <label>Autor / Artista</label>
+                    <input type="text" name="author" placeholder="Ej. En Espíritu y En Verdad / Miel San Marcos" required />
+                  </div>
+
+                  <div className="form-group">
+                    <label>¿Quién dirige esa semana? / Líder de Alabanza</label>
+                    <input type="text" name="leaderName" placeholder="Ej. Carlos Ruiz" required />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <div className="form-group">
+                    <label>Título del Proyecto / Video de Anuncio</label>
+                    <input type="text" name="title" placeholder="Ej. Video Campamento Juvenil 2026" required />
+                  </div>
+
+                  <div className="form-group">
+                    <label>¿Quién dirige / solicita esa semana?</label>
+                    <input type="text" name="leaderName" placeholder="Ej. Pr. Carlos Mendoza" required />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Indicaciones / Detalles de la Publicidad</label>
+                    <textarea
+                      name="mediaNotes"
+                      rows={3}
+                      placeholder="Ej. Video promocional de 1 min con fechas y costo..."
+                    />
+                  </div>
+                </>
+              )}
 
               <div className="form-group">
                 <label>Fecha del Culto o Límite de Entrega</label>
