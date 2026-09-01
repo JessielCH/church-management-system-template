@@ -36,12 +36,30 @@ export function proxy(request) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 3. Pastoral Agenda (/agenda) is exclusive for Pastor, Coordinator, Secretary & Admin
-  // Multimedia and Leaders are redirected to /multimedia
-  if (session && pathname.startsWith('/agenda')) {
-    const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'];
-    if (!allowedRoles.includes(session.role)) {
-      return NextResponse.redirect(new URL('/multimedia', request.url));
+  if (session) {
+    const isMultimediaOnly =
+      session.role === 'MULTIMEDIA' ||
+      session.role === 'LEADER' ||
+      (session.username && session.username.toLowerCase().includes('multimedia'));
+
+    // 3. Strict Restriction for Multimedia & Leaders
+    // They are ONLY allowed to access /multimedia, /calendario, and /configuracion.
+    // Anything else (including the Dashboard /) redirects them to /multimedia.
+    if (isMultimediaOnly) {
+      const allowedPaths = ['/multimedia', '/calendario', '/configuracion', '/change-password'];
+      // If they try to go anywhere else (like '/', '/agenda', '/membresia'), block and redirect.
+      if (!allowedPaths.some(p => pathname.startsWith(p)) && pathname !== '/multimedia') {
+        return NextResponse.redirect(new URL('/multimedia', request.url));
+      }
+    } else {
+      // 4. Pastoral Agenda (/agenda) is exclusive for Pastor, Coordinator, Secretary & Admin
+      // (This applies for general users that aren't strictly multimedia but still aren't allowed to see agenda)
+      if (pathname.startsWith('/agenda')) {
+        const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'];
+        if (!allowedRoles.includes(session.role)) {
+          return NextResponse.redirect(new URL('/multimedia', request.url));
+        }
+      }
     }
   }
 

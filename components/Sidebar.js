@@ -30,18 +30,30 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     return null;
   }
 
-  // Pastoral Agenda is exclusive for Pastor, Coordinator, Secretary & Admin
   const isPastoralAgendaAllowed = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'].includes(userRole);
+  const isMultimediaOnly = userRole === 'MULTIMEDIA' || userRole === 'LEADER' || userName.includes('multimedia');
 
-  const navItems = [
-    { name: 'Dashboard', href: '/', icon: 'dashboard' },
-    { name: 'Membresía', href: '/membresia', icon: 'group' },
-    { name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' },
-    { name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' },
-    ...(isPastoralAgendaAllowed ? [{ name: 'Agenda Pastoral', href: '/agenda', icon: 'event' }] : []),
-    { name: 'Multimedia', href: '/multimedia', icon: 'video_settings' },
-    { name: 'Reportes', href: '/reportes', icon: 'monitoring' },
-  ];
+  const navItems = [];
+
+  // General modules NOT for Multimedia operators
+  if (!isMultimediaOnly) {
+    navItems.push({ name: 'Dashboard', href: '/', icon: 'dashboard' });
+    navItems.push({ name: 'Membresía', href: '/membresia', icon: 'group' });
+    navItems.push({ name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' });
+    navItems.push({ name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' });
+    if (isPastoralAgendaAllowed) {
+      navItems.push({ name: 'Agenda Pastoral', href: '/agenda', icon: 'event' });
+    }
+  }
+
+  // Multimedia and Calendar Modules (Visible to Multimedia operators and others)
+  navItems.push({ name: 'Multimedia', href: '/multimedia', icon: 'video_settings' });
+  navItems.push({ name: 'Calendario Eventos', href: '/calendario', icon: 'calendar_month' });
+
+  // Reportes NOT for Multimedia operators
+  if (!isMultimediaOnly) {
+    navItems.push({ name: 'Reportes', href: '/reportes', icon: 'monitoring' });
+  }
 
   const displayName = userName || 'pastor1';
 
