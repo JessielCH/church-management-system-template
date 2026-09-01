@@ -14,6 +14,7 @@ export default function CalendarioPage() {
   const [editingEvent, setEditingEvent] = useState(null);
   const [deletingEventId, setDeletingEventId] = useState(null);
   const [selectedDateForNewEvent, setSelectedDateForNewEvent] = useState(null);
+  const [selectedDayEvents, setSelectedDayEvents] = useState(null); // { day, events }
 
   // Calendar state
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -148,133 +149,72 @@ export default function CalendarioPage() {
           </button>
         </div>
 
-        <div style={{ overflowX: 'auto', paddingBottom: '16px' }}>
-          <div style={{ minWidth: '700px' }}>
-            {/* Calendar Grid Header */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(7, 1fr)', 
-              gap: '8px', 
-              borderBottom: '1px solid var(--borde)', 
-              paddingBottom: '12px',
-              marginBottom: '12px',
-              textAlign: 'center',
-              fontWeight: '700',
-              color: '#6b7280',
-              fontSize: '0.9rem'
-            }}>
-              <div>Dom</div>
-              <div>Lun</div>
-              <div>Mar</div>
-              <div>Mié</div>
-              <div>Jue</div>
-              <div>Vie</div>
-              <div>Sáb</div>
-            </div>
+        <div className="calendar-container">
+          {/* Calendar Grid Header */}
+          <div className="calendar-grid-header">
+            <div>Dom</div>
+            <div>Lun</div>
+            <div>Mar</div>
+            <div>Mié</div>
+            <div>Jue</div>
+            <div>Vie</div>
+            <div>Sáb</div>
+          </div>
 
-            {/* Calendar Grid Body */}
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(7, minmax(0, 1fr))', 
-              gap: '8px',
-              minHeight: '60vh'
-            }}>
+          {/* Calendar Grid Body */}
+          <div className="calendar-grid-body">
+            {calendarDays.map((day, idx) => {
+              const isToday = day === new Date().getDate() && currentMonthIndex === new Date().getMonth() && currentYear === new Date().getFullYear();
+              
+              // Filter events for this specific day
+              const dayEvents = day ? events.filter(e => {
+                const eDate = new Date(e.date);
+                return eDate.getDate() === day && eDate.getMonth() === currentMonthIndex && eDate.getFullYear() === currentYear;
+              }) : [];
 
-          {calendarDays.map((day, idx) => {
-            const isToday = day === new Date().getDate() && currentMonthIndex === new Date().getMonth() && currentYear === new Date().getFullYear();
-            
-            // Filter events for this specific day
-            const dayEvents = day ? events.filter(e => {
-              const eDate = new Date(e.date);
-              return eDate.getDate() === day && eDate.getMonth() === currentMonthIndex && eDate.getFullYear() === currentYear;
-            }) : [];
+              return (
+                <div 
+                  key={idx} 
+                  className={`calendar-cell ${day ? 'active' : 'empty'} ${isToday ? 'today' : ''}`}
+                  onClick={() => {
+                    if (day) {
+                      // Open the new Day Events Modal
+                      setSelectedDayEvents({ day, events: dayEvents });
+                    }
+                  }}
+                >
+                  {day && (
+                    <div className="calendar-day-header">
+                      <span className="day-number">{day}</span>
+                    </div>
+                  )}
 
-            return (
-              <div 
-                key={idx} 
-                onClick={() => handleDayClick(day)}
-                style={{
-                  minHeight: '120px',
-                  border: '1px solid var(--borde)',
-                  borderRadius: '12px',
-                  padding: '8px',
-                  backgroundColor: day ? (isToday ? '#f0fdf4' : '#ffffff') : '#fafafa',
-                  cursor: (day && canManageEvents) ? 'pointer' : 'default',
-                  transition: 'border-color 0.2s ease',
-                  position: 'relative'
-                }}
-                onMouseEnter={(e) => {
-                  if (day && canManageEvents) e.currentTarget.style.borderColor = '#4338ca';
-                }}
-                onMouseLeave={(e) => {
-                  if (day && canManageEvents) e.currentTarget.style.borderColor = 'var(--borde)';
-                }}
-              >
-                {day && (
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center', 
-                    marginBottom: '8px'
-                  }}>
-                    <span style={{ 
-                      fontWeight: isToday ? '800' : '600', 
-                      color: isToday ? '#15803d' : '#1b1f3b',
-                      backgroundColor: isToday ? '#dcfce7' : 'transparent',
-                      width: '28px',
-                      height: '28px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '50%'
-                    }}>
-                      {day}
-                    </span>
+                  {/* Render events as small pills (dots on mobile) */}
+                  <div className="calendar-events-container">
+                    {dayEvents.map(ev => {
+                      const colors = getEventColor(ev.type);
+                      const evTime = new Date(ev.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                      
+                      return (
+                        <div 
+                          key={ev.id}
+                          className="calendar-event-pill"
+                          style={{
+                            backgroundColor: colors.bg,
+                            color: colors.text,
+                            borderColor: colors.border
+                          }}
+                          title={`${ev.title} - ${evTime}`}
+                        >
+                          <span className="event-title">{ev.title}</span>
+                          <span className="event-time">{evTime}</span>
+                        </div>
+                      );
+                    })}
                   </div>
-                )}
-
-                {/* Render events as small pills */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                  {dayEvents.map(ev => {
-                    const colors = getEventColor(ev.type);
-                    const evTime = new Date(ev.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-                    
-                    return (
-                      <div 
-                        key={ev.id}
-                        onClick={(e) => {
-                          e.stopPropagation(); // Prevent opening the add event modal
-                          if (canManageEvents) setEditingEvent(ev);
-                        }}
-                        style={{
-                          backgroundColor: colors.bg,
-                          color: colors.text,
-                          border: `1px solid ${colors.border}`,
-                          padding: '4px 6px',
-                          borderRadius: '6px',
-                          fontSize: '0.75rem',
-                          fontWeight: '600',
-                          textAlign: 'left',
-                          cursor: canManageEvents ? 'pointer' : 'default',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '2px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                        title={`${ev.title} - ${evTime}`}
-                      >
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{ev.title}</span>
-                        <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{evTime}</span>
-                      </div>
-                    );
-                  })}
                 </div>
-              </div>
-            );
-          })}
-            </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -287,6 +227,66 @@ export default function CalendarioPage() {
         onConfirm={handleConfirmDelete}
         onClose={() => setDeletingEventId(null)}
       />
+
+      {/* DAY EVENTS MODAL */}
+      {selectedDayEvents && (
+        <div className="modal-backdrop" onClick={() => setSelectedDayEvents(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>📅 Eventos del {selectedDayEvents.day} de {monthNames[currentMonthIndex]}</h2>
+              <button className="action-btn" onClick={() => setSelectedDayEvents(null)}>
+                <span className="material-symbols-outlined">close</span>
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', margin: '16px 0' }}>
+              {selectedDayEvents.events.length === 0 ? (
+                <p style={{ color: '#6b7280', textAlign: 'center', padding: '16px' }}>No hay eventos programados para este día.</p>
+              ) : (
+                selectedDayEvents.events.map(ev => {
+                  const colors = getEventColor(ev.type);
+                  const evTime = new Date(ev.date).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+                  return (
+                    <div key={ev.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', border: `1px solid ${colors.border}`, backgroundColor: colors.bg, borderRadius: '8px' }}>
+                      <div>
+                        <h4 style={{ margin: '0 0 4px', color: colors.text, fontSize: '1rem', fontWeight: '700' }}>{ev.title}</h4>
+                        <p style={{ margin: 0, fontSize: '0.85rem', color: colors.text }}>🕒 {evTime} | 📍 {ev.location}</p>
+                      </div>
+                      {canManageEvents && (
+                        <button 
+                          className="action-btn" 
+                          style={{ backgroundColor: '#ffffff', borderColor: colors.border }}
+                          onClick={() => {
+                            setSelectedDayEvents(null);
+                            setEditingEvent(ev);
+                          }}
+                        >
+                          <span className="material-symbols-outlined" style={{ fontSize: '18px', color: colors.text }}>edit</span>
+                        </button>
+                      )}
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            {canManageEvents && (
+              <div className="modal-actions" style={{ justifyContent: 'center', marginTop: '20px' }}>
+                <button 
+                  className="primary-button" 
+                  onClick={() => {
+                    setSelectedDayEvents(null);
+                    handleDayClick(selectedDayEvents.day);
+                  }}
+                >
+                  <span className="material-symbols-outlined">add</span>
+                  Añadir Evento este día
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* CREATE MODAL */}
       {showModal && canManageEvents && (

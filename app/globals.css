@@ -1064,3 +1064,115 @@ body {
 }
 
 
+
+/* Responsive Calendar Styles */
+.calendar-container {
+  width: 100%;
+}
+.calendar-grid-header {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  border-bottom: 1px solid var(--borde);
+  padding-bottom: 12px;
+  margin-bottom: 12px;
+  text-align: center;
+  font-weight: 700;
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+.calendar-grid-body {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  min-height: 60vh;
+}
+.calendar-cell {
+  min-height: 120px;
+  border: 1px solid var(--borde);
+  border-radius: 12px;
+  padding: 8px;
+  position: relative;
+  transition: border-color 0.2s ease;
+  cursor: pointer;
+}
+.calendar-cell.empty { background-color: #fafafa; cursor: default; }
+.calendar-cell.active { background-color: #ffffff; }
+.calendar-cell.active:hover { border-color: #4338ca; }
+.calendar-cell.today { background-color: #f0fdf4; }
+
+.calendar-day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.day-number {
+  font-weight: 600;
+  color: #1b1f3b;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+.calendar-cell.today .day-number {
+  font-weight: 800;
+  color: #15803d;
+  background-color: #dcfce7;
+}
+
+.calendar-events-container {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.calendar-event-pill {
+  padding: 4px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: left;
+  border: 1px solid transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.calendar-event-pill .event-title { overflow: hidden; text-overflow: ellipsis; }
+.calendar-event-pill .event-time { font-size: 0.7rem; opacity: 0.8; }
+
+@media (max-width: 768px) {
+  .calendar-cell {
+    min-height: 60px;
+    padding: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+  }
+  .calendar-grid-header { font-size: 0.75rem; gap: 4px; }
+  .calendar-grid-body { gap: 4px; }
+  .calendar-day-header { margin-bottom: 4px; }
+  .day-number { width: 24px; height: 24px; font-size: 0.85rem; }
+  
+  .calendar-events-container {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 4px;
+  }
+  /* Collapse pills to colored dots on mobile */
+  .calendar-event-pill {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border-radius: 50%;
+  }
+  .calendar-event-pill .event-title, .calendar-event-pill .event-time {
+    display: none;
+  }
+}

@@ -23,14 +23,6 @@ export default function TopHeader({ onToggleSidebar }) {
         >
           <span className="material-symbols-outlined">menu</span>
         </button>
-
-        <div className="search-bar">
-          <span className="material-symbols-outlined">search</span>
-          <input
-            type="text"
-            placeholder="Buscar miembros, ministerios, eventos..."
-          />
-        </div>
       </div>
 
       <div className="header-actions">
