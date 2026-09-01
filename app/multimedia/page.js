@@ -169,7 +169,7 @@ export default function MultimediaPage() {
                     padding: '16px',
                     borderRadius: '12px',
                     border: '1px solid var(--borde)',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
                     flexWrap: 'wrap',
                     gap: '12px',
                   }}
@@ -180,15 +180,17 @@ export default function MultimediaPage() {
                         width: '44px',
                         height: '44px',
                         borderRadius: '10px',
-                        backgroundColor: '#fff7ed',
-                        color: '#ea580c',
+                        backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#fff7ed',
+                        color: t.status === 'COMPLETED' ? '#15803d' : '#ea580c',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
                       }}
                     >
-                      <span className="material-symbols-outlined">queue_music</span>
+                      <span className="material-symbols-outlined">
+                        {t.status === 'COMPLETED' ? 'check_circle' : 'queue_music'}
+                      </span>
                     </div>
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
@@ -201,7 +203,7 @@ export default function MultimediaPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                     {/* Assignment Selector for Multimedia Admin */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>Asignado a:</span>
+                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>👤 Encargado:</span>
                       <select
                         value={t.assignedTo || ''}
                         onChange={(e) => handleAssignTicket(t.id, e.target.value)}
@@ -210,7 +212,9 @@ export default function MultimediaPage() {
                           padding: '4px 8px',
                           borderRadius: '6px',
                           border: '1px solid var(--borde)',
-                          backgroundColor: '#f9fafb',
+                          backgroundColor: '#ffffff',
+                          fontWeight: '600',
+                          color: t.assignedTo ? '#4338ca' : '#6b7280',
                         }}
                       >
                         <option value="">Sin Asignar</option>
@@ -219,25 +223,34 @@ export default function MultimediaPage() {
                       </select>
                     </div>
 
+                    {/* Completion Status Check Badge */}
                     <span
                       style={{
-                        fontSize: '0.78rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.8rem',
                         fontWeight: '700',
-                        padding: '4px 10px',
+                        padding: '6px 12px',
                         borderRadius: '20px',
                         backgroundColor:
                           t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
                         color:
                           t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
+                        border:
+                          t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
                       }}
                     >
-                      {t.status === 'COMPLETED' ? 'Listo para Culto' : t.status === 'IN_PROGRESS' ? 'En Preparación' : 'Pendiente'}
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                      </span>
+                      {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Preparación' : 'Pendiente'}
                     </span>
 
                     <button
                       className="action-btn"
                       onClick={() => handleStatusToggle(t.id, t.status)}
-                      title="Cambiar Estado"
+                      title="Cambiar Estado de la Tarea"
                     >
                       <span className="material-symbols-outlined">sync_alt</span>
                     </button>
@@ -275,7 +288,7 @@ export default function MultimediaPage() {
                     padding: '16px',
                     borderRadius: '12px',
                     border: '1px solid var(--borde)',
-                    backgroundColor: '#ffffff',
+                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
                     flexWrap: 'wrap',
                     gap: '12px',
                   }}
@@ -286,15 +299,17 @@ export default function MultimediaPage() {
                         width: '44px',
                         height: '44px',
                         borderRadius: '10px',
-                        backgroundColor: '#e0e7ff',
-                        color: '#4338ca',
+                        backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#e0e7ff',
+                        color: t.status === 'COMPLETED' ? '#15803d' : '#4338ca',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         flexShrink: 0,
                       }}
                     >
-                      <span className="material-symbols-outlined">campaign</span>
+                      <span className="material-symbols-outlined">
+                        {t.status === 'COMPLETED' ? 'check_circle' : 'campaign'}
+                      </span>
                     </div>
                     <div>
                       <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
@@ -307,7 +322,7 @@ export default function MultimediaPage() {
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                     {/* Assignment Selector for Multimedia Admin */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>Asignado a:</span>
+                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>👤 Encargado:</span>
                       <select
                         value={t.assignedTo || ''}
                         onChange={(e) => handleAssignTicket(t.id, e.target.value)}
@@ -316,7 +331,9 @@ export default function MultimediaPage() {
                           padding: '4px 8px',
                           borderRadius: '6px',
                           border: '1px solid var(--borde)',
-                          backgroundColor: '#f9fafb',
+                          backgroundColor: '#ffffff',
+                          fontWeight: '600',
+                          color: t.assignedTo ? '#4338ca' : '#6b7280',
                         }}
                       >
                         <option value="">Sin Asignar</option>
@@ -325,25 +342,34 @@ export default function MultimediaPage() {
                       </select>
                     </div>
 
+                    {/* Completion Status Check Badge */}
                     <span
                       style={{
-                        fontSize: '0.78rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        fontSize: '0.8rem',
                         fontWeight: '700',
-                        padding: '4px 10px',
+                        padding: '6px 12px',
                         borderRadius: '20px',
                         backgroundColor:
                           t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
                         color:
                           t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
+                        border:
+                          t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
                       }}
                     >
-                      {t.status === 'COMPLETED' ? 'Publicado' : t.status === 'IN_PROGRESS' ? 'En Edición' : 'Pendiente'}
+                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                        {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                      </span>
+                      {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Edición' : 'Pendiente'}
                     </span>
 
                     <button
                       className="action-btn"
                       onClick={() => handleStatusToggle(t.id, t.status)}
-                      title="Cambiar Estado"
+                      title="Cambiar Estado de la Tarea"
                     >
                       <span className="material-symbols-outlined">sync_alt</span>
                     </button>
@@ -377,7 +403,7 @@ export default function MultimediaPage() {
                     padding: '16px',
                     borderRadius: '12px',
                     border: '1px solid var(--borde)',
-                    backgroundColor: '#f9fafb',
+                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#f9fafb',
                   }}
                 >
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
@@ -397,11 +423,21 @@ export default function MultimediaPage() {
                   </div>
                   <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
                   <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description}</p>
-                  {t.assignedTo && (
-                    <div style={{ marginTop: '8px', fontSize: '0.75rem', color: '#4f46e5', fontWeight: '600' }}>
-                      👤 Asignado a: {t.assignedTo}
-                    </div>
-                  )}
+
+                  <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: '600' }}>
+                      👤 Encargado: {t.assignedTo || 'Sin Asignar'}
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '0.75rem',
+                        fontWeight: '700',
+                        color: t.status === 'COMPLETED' ? '#15803d' : '#b45309',
+                      }}
+                    >
+                      {t.status === 'COMPLETED' ? '✓ Realizado' : 'Pendiente'}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
