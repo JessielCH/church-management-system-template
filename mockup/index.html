@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistema Administrativo - IEBB</title>
+    <title>Sistema Administrativo - Church Management System</title>
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -18,41 +18,37 @@
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
-                <img src="../images/logo_iebb.png" alt="IEBB Logo" class="logo-img" style="height: 40px; border-radius: 8px;">
-                <h2>Plan IEBB</h2>
+                <img src="../images/logo.svg" alt="Church Logo" class="logo-img" style="height: 40px; border-radius: 8px;">
+                <h2>Church Admin</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" data-view="view-dashboard">
                     <span class="material-symbols-outlined">dashboard</span>
                     <span>Dashboard</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-membresia">
                     <span class="material-symbols-outlined">group</span>
                     <span>Membresía</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-evangelismo">
                     <span class="material-symbols-outlined">campaign</span>
                     <span>Evangelismo</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-consolidacion-discipulado">
                     <span class="material-symbols-outlined">diversity_3</span>
-                    <span>Consolidación</span>
+                    <span>Consolidación y Discipulado</span>
                 </a>
-                <a href="#" class="nav-item">
-                    <span class="material-symbols-outlined">menu_book</span>
-                    <span>Discipulado</span>
-                </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-agenda">
                     <span class="material-symbols-outlined">event</span>
                     <span>Agenda</span>
                 </a>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-reportes">
                     <span class="material-symbols-outlined">monitoring</span>
                     <span>Reportes</span>
                 </a>
             </nav>
             <div class="sidebar-footer">
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" data-view="view-configuracion">
                     <span class="material-symbols-outlined">settings</span>
                     <span>Configuración</span>
                 </a>
@@ -71,7 +67,7 @@
             <header class="top-header">
                 <div class="search-bar">
                     <span class="material-symbols-outlined">search</span>
-                    <input type="text" placeholder="Buscar miembros, ministerios, eventos...">
+                    <input type="text" id="globalSearchInput" placeholder="Buscar miembros, ministerios, eventos..." onkeyup="filterGlobalSearch(this.value)">
                 </div>
                 <div class="header-actions">
                     <button class="icon-button notification-btn" onclick="toggleNotifications()">
@@ -86,9 +82,11 @@
                             <span class="material-symbols-outlined" style="font-size: 16px; margin-left: -4px;">expand_more</span>
                         </button>
                         <div class="dropdown-menu" id="newActionDropdown">
-                            <a href="#" class="dropdown-item"><span class="material-symbols-outlined">person_add</span> Añadir Miembro</a>
-                            <a href="#" class="dropdown-item"><span class="material-symbols-outlined">event</span> Nuevo Evento</a>
-                            <a href="#" class="dropdown-item"><span class="material-symbols-outlined">how_to_reg</span> Registrar Visita Pastoral</a>
+                            <a href="#" class="dropdown-item" onclick="openModal('modalAddMember')"><span class="material-symbols-outlined">person_add</span> Añadir Miembro</a>
+                            <a href="#" class="dropdown-item" onclick="openModal('modalAddContact')"><span class="material-symbols-outlined">campaign</span> Nuevo Contacto</a>
+                            <a href="#" class="dropdown-item" onclick="openModal('modalAssignConsolidator')"><span class="material-symbols-outlined">handshake</span> Asignar Discipulador</a>
+                            <a href="#" class="dropdown-item" onclick="openModal('modalAddEvent')"><span class="material-symbols-outlined">event</span> Nuevo Evento</a>
+                            <a href="#" class="dropdown-item" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span> Registrar Visita Pastoral</a>
                         </div>
                     </div>
                 </div>
@@ -97,7 +95,7 @@
                 <div class="notifications-dropdown" id="notificationsDropdown">
                     <div class="dropdown-header">
                         <h3>Notificaciones</h3>
-                        <a href="#">Marcar todo leído</a>
+                        <a href="#" onclick="clearNotifications(event)">Marcar todo leído</a>
                     </div>
                     <div class="notification-list">
                         <div class="notification-item warning">
@@ -126,7 +124,7 @@
             </header>
 
             <div class="content-area">
-                <!-- Dashboard View -->
+                <!-- ==================== 1. DASHBOARD VIEW ==================== -->
                 <div id="view-dashboard" class="view-section active">
                     <div class="welcome-section">
                         <div>
@@ -139,228 +137,1344 @@
                         </div>
                     </div>
 
-                <!-- KPI Cards -->
-                <div class="kpi-grid">
-                    <div class="kpi-card">
-                        <div class="kpi-icon orange">
-                            <span class="material-symbols-outlined">groups</span>
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card" onclick="switchViewDirect('view-membresia')" style="cursor: pointer;">
+                            <div class="kpi-icon orange">
+                                <span class="material-symbols-outlined">groups</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Membresía Activa</h3>
+                                <div class="kpi-value">482 <span class="trend up">+12%</span></div>
+                            </div>
                         </div>
-                        <div class="kpi-info">
-                            <h3>Membresía Activa</h3>
-                            <div class="kpi-value">482 <span class="trend up">+12%</span></div>
+                        <div class="kpi-card" onclick="switchViewDirect('view-evangelismo')" style="cursor: pointer;">
+                            <div class="kpi-icon vivid">
+                                <span class="material-symbols-outlined">record_voice_over</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Nuevos Contactos</h3>
+                                <div class="kpi-value">24 <span class="trend up">+5%</span></div>
+                                <p class="kpi-subtitle">Evangelismo este mes</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card" onclick="switchViewDirect('view-consolidacion-discipulado')" style="cursor: pointer;">
+                            <div class="kpi-icon pastel">
+                                <span class="material-symbols-outlined">handshake</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>En Consolidación y Discipulado</h3>
+                                <div class="kpi-value">15</div>
+                                <p class="kpi-subtitle">Requieren seguimiento</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card" onclick="switchViewDirect('view-membresia')" style="cursor: pointer;">
+                            <div class="kpi-icon red">
+                                <span class="material-symbols-outlined">person_off</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Inactivos</h3>
+                                <div class="kpi-value">8 <span class="trend down">-2%</span></div>
+                                <p class="kpi-subtitle">Atención prioritaria</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon vivid">
-                            <span class="material-symbols-outlined">record_voice_over</span>
+
+                    <div class="dashboard-grid">
+                        <!-- Seguimientos Table -->
+                        <div class="card seguimientos-card">
+                            <div class="card-header">
+                                <h2>Próximos Seguimientos y Visitas</h2>
+                                <div class="flex-gap">
+                                    <button class="secondary-button compact" onclick="openModal('modalAddPastoralVisit')">
+                                        <span class="material-symbols-outlined" style="font-size:16px;">how_to_reg</span> Registrar Visita
+                                    </button>
+                                    <a href="#" class="view-all" onclick="switchViewDirect('view-consolidacion-discipulado')">Ver todos</a>
+                                </div>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="styled-table" id="tableDashboardVisits">
+                                    <thead>
+                                        <tr>
+                                            <th>Nombre</th>
+                                            <th>Ministerio / Tipo</th>
+                                            <th>Fecha Límite</th>
+                                            <th>Estado</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small">MR</div>
+                                                    <div>
+                                                        <strong>María Rodríguez</strong>
+                                                        <span>Nuevo Creyente</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Consolidación / Discipulado</td>
+                                            <td>Hoy, 16:00</td>
+                                            <td><span class="status warning">Pendiente</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Llamar" onclick="alert('Iniciando llamada a María Rodríguez...')"><span class="material-symbols-outlined">call</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color:#d0ebff; color:#1864ab;">CP</div>
+                                                    <div>
+                                                        <strong>Carlos Pérez</strong>
+                                                        <span>Inactivo</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Visita Pastoral</td>
+                                            <td>Mañana</td>
+                                            <td><span class="status danger">Urgente</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Registrar Visita" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color:#c3fae8; color:#087f5b;">LG</div>
+                                                    <div>
+                                                        <strong>Laura Gómez</strong>
+                                                        <span>Líder en formación</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Discipulado Nivel 3</td>
+                                            <td>20 Ago</td>
+                                            <td><span class="status success">En curso</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Editar" onclick="switchViewDirect('view-consolidacion-discipulado')"><span class="material-symbols-outlined">edit</span></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
-                        <div class="kpi-info">
-                            <h3>Nuevos Contactos</h3>
-                            <div class="kpi-value">24 <span class="trend up">+5%</span></div>
-                            <p class="kpi-subtitle">Evangelismo este mes</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon pastel">
-                            <span class="material-symbols-outlined">handshake</span>
-                        </div>
-                        <div class="kpi-info">
-                            <h3>En Consolidación</h3>
-                            <div class="kpi-value">15</div>
-                            <p class="kpi-subtitle">Requieren seguimiento</p>
-                        </div>
-                    </div>
-                    <div class="kpi-card">
-                        <div class="kpi-icon red">
-                            <span class="material-symbols-outlined">person_off</span>
-                        </div>
-                        <div class="kpi-info">
-                            <h3>Inactivos</h3>
-                            <div class="kpi-value">8 <span class="trend down">-2%</span></div>
-                            <p class="kpi-subtitle">Atención prioritaria</p>
+
+                        <!-- Agenda Sidebar in Dashboard -->
+                        <div class="card agenda-card">
+                            <div class="card-header">
+                                <h2>Agenda de la Semana</h2>
+                                <button class="icon-button" onclick="openModal('modalAddEvent')"><span class="material-symbols-outlined">add</span></button>
+                            </div>
+                            <div class="agenda-list">
+                                <div class="agenda-item">
+                                    <div class="agenda-time">
+                                        <strong>18</strong>
+                                        <span>Ago</span>
+                                    </div>
+                                    <div class="agenda-details">
+                                        <h4>Reunión de Liderazgo</h4>
+                                        <p>Planificación mensual (19:00)</p>
+                                    </div>
+                                </div>
+                                <div class="agenda-item urgent">
+                                    <div class="agenda-time">
+                                        <strong>19</strong>
+                                        <span>Ago</span>
+                                    </div>
+                                    <div class="agenda-details">
+                                        <h4>Salida Evangelística</h4>
+                                        <p>Parque central (Min. Jóvenes)</p>
+                                    </div>
+                                </div>
+                                <div class="agenda-item">
+                                    <div class="agenda-time">
+                                        <strong>23</strong>
+                                        <span>Ago</span>
+                                    </div>
+                                    <div class="agenda-details">
+                                        <h4>Culto Dominical</h4>
+                                        <p>Especial de Bautismos (09:00)</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="dashboard-grid">
-                    <!-- Seguimientos Table -->
-                    <div class="card seguimientos-card">
-                        <div class="card-header">
-                            <h2>Próximos Seguimientos</h2>
-                            <a href="#" class="view-all">Ver todos</a>
-                        </div>
-                        <div class="table-responsive">
-                            <table class="styled-table">
-                                <thead>
-                                    <tr>
-                                        <th>Nombre</th>
-                                        <th>Ministerio / Fase</th>
-                                        <th>Fecha Límite</th>
-                                        <th>Estado</th>
-                                        <th>Acción</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>
-                                            <div class="person-cell">
-                                                <div class="avatar-small">MR</div>
-                                                <div>
-                                                    <strong>María Rodríguez</strong>
-                                                    <span>Nuevo Creyente</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Consolidación</td>
-                                        <td>Hoy, 16:00</td>
-                                        <td><span class="status warning">Pendiente</span></td>
-                                        <td>
-                                            <button class="action-btn"><span class="material-symbols-outlined">call</span></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="person-cell">
-                                                <div class="avatar-small">CP</div>
-                                                <div>
-                                                    <strong>Carlos Pérez</strong>
-                                                    <span>Inactivo</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Visita Pastoral</td>
-                                        <td>Mañana</td>
-                                        <td><span class="status danger">Urgente</span></td>
-                                        <td>
-                                            <button class="action-btn"><span class="material-symbols-outlined">call</span></button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                            <div class="person-cell">
-                                                <div class="avatar-small">LG</div>
-                                                <div>
-                                                    <strong>Laura Gómez</strong>
-                                                    <span>Líder en formación</span>
-                                                </div>
-                                            </div>
-                                        </td>
-                                        <td>Discipulado</td>
-                                        <td>20 Ago</td>
-                                        <td><span class="status success">En curso</span></td>
-                                        <td>
-                                            <button class="action-btn"><span class="material-symbols-outlined">edit</span></button>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <!-- Agenda Sidebar in Dashboard -->
-                    <div class="card agenda-card">
-                        <div class="card-header">
-                            <h2>Agenda de la Semana</h2>
-                            <button class="icon-button"><span class="material-symbols-outlined">add</span></button>
-                        </div>
-                        <div class="agenda-list">
-                            <div class="agenda-item">
-                                <div class="agenda-time">
-                                    <strong>18</strong>
-                                    <span>Ago</span>
-                                </div>
-                                <div class="agenda-details">
-                                    <h4>Reunión de Liderazgo</h4>
-                                    <p>Planificación mensual</p>
-                                </div>
-                            </div>
-                            <div class="agenda-item urgent">
-                                <div class="agenda-time">
-                                    <strong>19</strong>
-                                    <span>Ago</span>
-                                </div>
-                                <div class="agenda-details">
-                                    <h4>Salida Evangelística</h4>
-                                    <p>Parque central (Confirmar a 10 personas)</p>
-                                </div>
-                            </div>
-                            <div class="agenda-item">
-                                <div class="agenda-time">
-                                    <strong>23</strong>
-                                    <span>Ago</span>
-                                </div>
-                                <div class="agenda-details">
-                                    <h4>Culto Dominical</h4>
-                                    <p>Especial de bautismos</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div> <!-- End Dashboard View -->
-
-                <!-- Membresía View -->
+                <!-- ==================== 2. MEMBRESÍA VIEW ==================== -->
                 <div id="view-membresia" class="view-section" style="display: none;">
                     <div class="welcome-section">
                         <div>
-                            <h1>Membresía</h1>
-                            <p>Gestión del padrón de la iglesia</p>
+                            <h1>Membresía General</h1>
+                            <p>Gestión del padrón oficial de la iglesia, familias y ministerios.</p>
                         </div>
+                        <button class="primary-button" onclick="openModal('modalAddMember')">
+                            <span class="material-symbols-outlined">person_add</span>
+                            Añadir Miembro
+                        </button>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Directorio de Miembros</h2>
-                            <div class="search-bar">
-                                <span class="material-symbols-outlined">search</span>
-                                <input type="text" placeholder="Buscar miembro...">
+
+                    <!-- Membresía KPIs -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon orange">
+                                <span class="material-symbols-outlined">badge</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Total Padrón</h3>
+                                <div class="kpi-value">482</div>
+                                <p class="kpi-subtitle">Registrados formalmente</p>
                             </div>
                         </div>
-                        <div style="padding: 40px; text-align: center; color: var(--texto-suave);">
-                            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--borde);">group</span>
-                            <p style="margin-top: 16px;">Selecciona "Nuevo" > "Añadir Miembro" para empezar a poblar esta lista.</p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon vivid">
+                                <span class="material-symbols-outlined">check_circle</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Miembros Activos</h3>
+                                <div class="kpi-value">440</div>
+                                <p class="kpi-subtitle">Asistencia recurrente</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon pastel">
+                                <span class="material-symbols-outlined">water_drop</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Bautismos</h3>
+                                <div class="kpi-value">395 <span class="trend up">82%</span></div>
+                                <p class="kpi-subtitle">Miembros bautizados</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon red">
+                                <span class="material-symbols-outlined">hourglass_top</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>En Prueba / Visitas</h3>
+                                <div class="kpi-value">42</div>
+                                <p class="kpi-subtitle">En integración</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <!-- Sub-tabs -->
+                        <div class="tab-bar">
+                            <button class="tab-item active" onclick="switchSubTab(this, 'tab-membresia-todos')">Todos los Miembros (482)</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-membresia-familias')">Familias (120)</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-membresia-ministerios')">Por Ministerio (14)</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-membresia-cumple')">Cumpleaños de Agosto (18)</button>
+                        </div>
+
+                        <div class="card-header flex-wrap gap-12">
+                            <div class="filter-group">
+                                <div class="search-bar inline">
+                                    <span class="material-symbols-outlined">search</span>
+                                    <input type="text" id="memberSearch" placeholder="Buscar por nombre, CI o teléfono..." onkeyup="filterMemberTable()">
+                                </div>
+                                <select class="styled-select" id="memberMinistryFilter" onchange="filterMemberTable()">
+                                    <option value="">Todos los Ministerios</option>
+                                    <option value="Alabanza">Alabanza</option>
+                                    <option value="Jóvenes">Jóvenes</option>
+                                    <option value="Damas">Damas</option>
+                                    <option value="Caballeros">Caballeros</option>
+                                    <option value="Niños">Niños</option>
+                                    <option value="Protocolo">Protocolo</option>
+                                </select>
+                                <select class="styled-select" id="memberStatusFilter" onchange="filterMemberTable()">
+                                    <option value="">Todos los Estados</option>
+                                    <option value="Activo">Activo</option>
+                                    <option value="En prueba">En prueba</option>
+                                    <option value="Inactivo">Inactivo</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Tab Content: Todos -->
+                        <div id="tab-membresia-todos" class="subtab-content active">
+                            <div class="table-responsive">
+                                <table class="styled-table" id="tableMembers">
+                                    <thead>
+                                        <tr>
+                                            <th>Miembro</th>
+                                            <th>C.I. / Cédula</th>
+                                            <th>Teléfono / Correo</th>
+                                            <th>Ministerio</th>
+                                            <th>Estado Bautismo</th>
+                                            <th>Estado Padrón</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small">RM</div>
+                                                    <div>
+                                                        <strong>Pr. Ricardo Morales</strong>
+                                                        <span>Pastor Principal</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>4589201 SC</td>
+                                            <td>+591 710 44321<br><small style="color:var(--texto-suave)">ricardo@ejemplo.org</small></td>
+                                            <td><span class="tag">Liderazgo</span></td>
+                                            <td><span class="status success">Bautizado</span></td>
+                                            <td><span class="status success">Activo</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Ver Ficha" onclick="showMemberCard('Pr. Ricardo Morales', 'Pastor Principal', '4589201 SC', '+591 710 44321', 'ricardo@ejemplo.org', 'Liderazgo', 'Bautizado', 'Activo')"><span class="material-symbols-outlined">visibility</span></button>
+                                                <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color: #ffd8a8; color: #d9480f;">MR</div>
+                                                    <div>
+                                                        <strong>María Rodríguez</strong>
+                                                        <span>Nuevo Creyente</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>6781290 SC</td>
+                                            <td>+591 765 88901<br><small style="color:var(--texto-suave)">maria.r@gmail.com</small></td>
+                                            <td><span class="tag">Damas</span></td>
+                                            <td><span class="status warning">Pendiente</span></td>
+                                            <td><span class="status success">Activo</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Ver Ficha" onclick="showMemberCard('María Rodríguez', 'Nuevo Creyente', '6781290 SC', '+591 765 88901', 'maria.r@gmail.com', 'Damas', 'Pendiente', 'Activo')"><span class="material-symbols-outlined">visibility</span></button>
+                                                <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color: #d0ebff; color: #1864ab;">CP</div>
+                                                    <div>
+                                                        <strong>Carlos Pérez</strong>
+                                                        <span>Inactivo</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>8912304 SC</td>
+                                            <td>+591 721 99012<br><small style="color:var(--texto-suave)">carlos.perez@hotmail.com</small></td>
+                                            <td><span class="tag">Caballeros</span></td>
+                                            <td><span class="status warning">Pendiente</span></td>
+                                            <td><span class="status danger">Inactivo</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Ver Ficha" onclick="showMemberCard('Carlos Pérez', 'Inactivo', '8912304 SC', '+591 721 99012', 'carlos.perez@hotmail.com', 'Caballeros', 'Pendiente', 'Inactivo')"><span class="material-symbols-outlined">visibility</span></button>
+                                                <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tab Content: Familias -->
+                        <div id="tab-membresia-familias" class="subtab-content" style="display:none;">
+                            <div class="grid-2">
+                                <div class="family-card">
+                                    <div class="family-header">
+                                        <span class="material-symbols-outlined icon">home</span>
+                                        <div>
+                                            <h3>Familia Morales Rodríguez</h3>
+                                            <span>4 Integrantes • Sector Norte</span>
+                                        </div>
+                                    </div>
+                                    <div class="family-members">
+                                        <p><strong>Cabeza:</strong> Pr. Ricardo Morales</p>
+                                        <p><strong>Cónyuge:</strong> Hna. Elena Vargas</p>
+                                        <p><strong>Hijos:</strong> Mateo Morales (15), Mateo Jr. (12)</p>
+                                    </div>
+                                </div>
+                                <div class="family-card">
+                                    <div class="family-header">
+                                        <span class="material-symbols-outlined icon">home</span>
+                                        <div>
+                                            <h3>Familia Pérez Gómez</h3>
+                                            <span>3 Integrantes • Sector Centro</span>
+                                        </div>
+                                    </div>
+                                    <div class="family-members">
+                                        <p><strong>Cabeza:</strong> Carlos Pérez</p>
+                                        <p><strong>Cónyuge:</strong> Laura Gómez</p>
+                                        <p><strong>Hijos:</strong> Andrés Pérez (8)</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Content: Ministerios -->
+                        <div id="tab-membresia-ministerios" class="subtab-content" style="display:none;">
+                            <div class="grid-3">
+                                <div class="ministry-box">
+                                    <div class="ministry-icon vivid"><span class="material-symbols-outlined">music_note</span></div>
+                                    <h4>Alabanza y Adoración</h4>
+                                    <p>28 Integrantes • Líder: Hno. Mateo</p>
+                                </div>
+                                <div class="ministry-box">
+                                    <div class="ministry-icon orange"><span class="material-symbols-outlined">child_care</span></div>
+                                    <h4>Escuela Dominical Niños</h4>
+                                    <p>42 Integrantes • Líder: Sofía Torres</p>
+                                </div>
+                                <div class="ministry-box">
+                                    <div class="ministry-icon pastel"><span class="material-symbols-outlined">bolt</span></div>
+                                    <h4>Ministerio de Jóvenes</h4>
+                                    <p>85 Integrantes • Líder: Fernando López</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab Content: Cumpleaños -->
+                        <div id="tab-membresia-cumple" class="subtab-content" style="display:none;">
+                            <div class="birthday-list">
+                                <div class="birthday-item">
+                                    <span class="material-symbols-outlined icon">cake</span>
+                                    <div>
+                                        <strong>María Rodríguez</strong> — 20 de Agosto
+                                        <p>Ministerio de Damas</p>
+                                    </div>
+                                    <button class="primary-button compact" onclick="alert('Felicitación enviada por WhatsApp!')">Felicitar</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Evangelismo View -->
+                <!-- ==================== 3. EVANGELISMO VIEW ==================== -->
                 <div id="view-evangelismo" class="view-section" style="display: none;">
                     <div class="welcome-section">
                         <div>
-                            <h1>Evangelismo</h1>
-                            <p>Seguimiento de nuevos contactos (Meta 100%)</p>
+                            <h1>Evangelismo por Ministerios</h1>
+                            <p>Captación de nuevos contactos organizados por cada ministerio (Jóvenes, Damas, Caballeros, etc.).</p>
+                        </div>
+                        <div class="flex-gap">
+                            <button class="secondary-button" onclick="openModal('modalAssignConsolidator')">
+                                <span class="material-symbols-outlined">handshake</span>
+                                Asignar a Discipulado
+                            </button>
+                            <button class="primary-button" onclick="openModal('modalAddContact')">
+                                <span class="material-symbols-outlined">person_add</span>
+                                Registrar Contacto
+                            </button>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Nuevos Contactos (Agosto)</h2>
+
+                    <!-- Evangelismo KPIs -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon vivid">
+                                <span class="material-symbols-outlined">record_voice_over</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Contactos este Mes</h3>
+                                <div class="kpi-value">38 <span class="trend up">+15%</span></div>
+                                <p class="kpi-subtitle">Evangelismo por ministerios</p>
+                            </div>
                         </div>
-                        <div style="padding: 40px; text-align: center; color: var(--texto-suave);">
-                            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--borde);">campaign</span>
-                            <p style="margin-top: 16px;">Aquí se listarán las personas contactadas en salidas evangelísticas.</p>
+                        <div class="kpi-card">
+                            <div class="kpi-icon orange">
+                                <span class="material-symbols-outlined">phone_callback</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Contactados / Visita</h3>
+                                <div class="kpi-value">24</div>
+                                <p class="kpi-subtitle">Primera llamada hecha</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon pastel">
+                                <span class="material-symbols-outlined">church</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Asistieron a Templo</h3>
+                                <div class="kpi-value">16</div>
+                                <p class="kpi-subtitle">Asistieron a cultos</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon red">
+                                <span class="material-symbols-outlined">diversity_3</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>En Consolidación y Discipulado</h3>
+                                <div class="kpi-value">14 <span class="trend up">68%</span></div>
+                                <p class="kpi-subtitle">Con discipulador asignado</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter by Ministry for Evangelism -->
+                    <div class="card mb-24">
+                        <div class="card-header flex-wrap gap-12">
+                            <h2>Embudo de Evangelismo (Agosto 2026)</h2>
+                            <div class="filter-group" style="width: auto;">
+                                <select class="styled-select" id="evangelismMinistryFilter" onchange="filterEvangelismPipeline()">
+                                    <option value="">Todos los Ministerios</option>
+                                    <option value="Jóvenes">Ministerio de Jóvenes</option>
+                                    <option value="Damas">Ministerio de Damas</option>
+                                    <option value="Caballeros">Ministerio de Caballeros</option>
+                                    <option value="Alabanza">Ministerio de Alabanza</option>
+                                    <option value="General">Evangelismo General</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Pipeline Visual Board -->
+                        <div class="pipeline-board">
+                            <div class="pipeline-col">
+                                <div class="col-header bg-orange">
+                                    <h3>1. Captados (10)</h3>
+                                </div>
+                                <div class="pipeline-cards" id="col-captados">
+                                    <div class="pipeline-card" data-ministry="Jóvenes">
+                                        <strong>Gabriel Reyes</strong>
+                                        <p>Parque Central • Tel: +591 712 34567</p>
+                                        <div class="flex-between">
+                                            <span class="badge-tag">Min. Jóvenes</span>
+                                            <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('Gabriel Reyes')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
+                                        </div>
+                                    </div>
+                                    <div class="pipeline-card" data-ministry="Damas">
+                                        <strong>Lucía Méndez</strong>
+                                        <p>Feria de Salud • Tel: +591 722 88901</p>
+                                        <div class="flex-between">
+                                            <span class="badge-tag">Min. Damas</span>
+                                            <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('Lucía Méndez')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pipeline-col">
+                                <div class="col-header bg-vivid">
+                                    <h3>2. Visita / Llamada (8)</h3>
+                                </div>
+                                <div class="pipeline-cards" id="col-visitados">
+                                    <div class="pipeline-card" data-ministry="Caballeros">
+                                        <strong>Roberto Justiniano</strong>
+                                        <p>Llamada realizada ayer</p>
+                                        <div class="flex-between">
+                                            <span class="badge-tag">Min. Caballeros</span>
+                                            <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('Roberto Justiniano')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pipeline-col">
+                                <div class="col-header bg-pastel">
+                                    <h3>3. Asistió a Templo (6)</h3>
+                                </div>
+                                <div class="pipeline-cards" id="col-asistieron">
+                                    <div class="pipeline-card" data-ministry="Jóvenes">
+                                        <strong>Camila Ríos</strong>
+                                        <p>Culto Dominical 16 Ago</p>
+                                        <div class="flex-between">
+                                            <span class="badge-tag">Min. Jóvenes</span>
+                                            <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('Camila Ríos')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pipeline-col">
+                                <div class="col-header bg-dark">
+                                    <h3>4. Consolidación y Discipulado (14)</h3>
+                                </div>
+                                <div class="pipeline-cards" id="col-consolidacion">
+                                    <div class="pipeline-card" data-ministry="General">
+                                        <strong>Juan Pablo Morales</strong>
+                                        <p>Discipulador: Pr. Ricardo</p>
+                                        <span class="status success">En Discipulado</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Agenda View -->
+                <!-- ==================== 4. CONSOLIDACIÓN Y DISCIPULADO UNIFICADO ==================== -->
+                <div id="view-consolidacion-discipulado" class="view-section" style="display: none;">
+                    <div class="welcome-section">
+                        <div>
+                            <h1>Consolidación y Discipulado Integrado</h1>
+                            <p>Proceso unificado de consolidar discipulando: lecciones de fe para nuevos creyentes, grupos de discipulado y escuela de formación.</p>
+                        </div>
+                        <div class="flex-gap">
+                            <button class="secondary-button" onclick="openModal('modalAddDiscipleship')">
+                                <span class="material-symbols-outlined">add</span>
+                                Nuevo Grupo
+                            </button>
+                            <button class="primary-button" onclick="openModal('modalAssignConsolidator')">
+                                <span class="material-symbols-outlined">handshake</span>
+                                Asignar Discipulador
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Consolidación y Discipulado KPIs -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <div class="kpi-icon pastel">
+                                <span class="material-symbols-outlined">handshake</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>En Consolidación (Nuevos)</h3>
+                                <div class="kpi-value" id="kpiActiveConsolidations">15</div>
+                                <p class="kpi-subtitle">Lecciones iniciales de fe</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon orange">
+                                <span class="material-symbols-outlined">menu_book</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Grupos de Discipulado</h3>
+                                <div class="kpi-value" id="kpiDiscipleshipCount">24</div>
+                                <p class="kpi-subtitle">En casas o en la iglesia</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon vivid">
+                                <span class="material-symbols-outlined">school</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Estudiantes Academia</h3>
+                                <div class="kpi-value">86</div>
+                                <p class="kpi-subtitle">Niveles 1, 2 y 3</p>
+                            </div>
+                        </div>
+                        <div class="kpi-card">
+                            <div class="kpi-icon red">
+                                <span class="material-symbols-outlined">water_drop</span>
+                            </div>
+                            <div class="kpi-info">
+                                <h3>Listos p/ Bautismo</h3>
+                                <div class="kpi-value">5</div>
+                                <p class="kpi-subtitle">Bautismos este mes</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unified Card & Tabs -->
+                    <div class="card mb-24">
+                        <div class="tab-bar">
+                            <button class="tab-item active" onclick="switchSubTab(this, 'tab-unified-nuevos')">1. Consolidación de Nuevos Creyentes</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-unified-grupos')">2. Grupos de Discipulado (Casas / Iglesia)</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-unified-escuela')">3. Escuela / Academia de Formación</button>
+                        </div>
+
+                        <!-- Sub-tab 1: Nuevos Creyentes en Consolidación / Discipulado -->
+                        <div id="tab-unified-nuevos" class="subtab-content active">
+                            <div class="table-responsive">
+                                <table class="styled-table" id="tableConsolidation">
+                                    <thead>
+                                        <tr>
+                                            <th>Nuevo Creyente</th>
+                                            <th>Discipulador / Consolidador</th>
+                                            <th>Avance Discipulado (Lección 1 a 4)</th>
+                                            <th>Próxima Cita</th>
+                                            <th>Estado</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small">MR</div>
+                                                    <div>
+                                                        <strong>María Rodríguez</strong>
+                                                        <span>Origen: Evangelismo Damas</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Hno. Mateo Morales</td>
+                                            <td>
+                                                <div class="progress-bar-container">
+                                                    <div class="progress-bar" style="width: 75%;"></div>
+                                                </div>
+                                                <small>Lección 3 de 4 (75%)</small>
+                                            </td>
+                                            <td>Hoy, 16:00</td>
+                                            <td><span class="status warning">Llamada pendiente</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Registrar Avance" onclick="alert('Registrando avance de lección para María Rodríguez')"><span class="material-symbols-outlined">check_circle</span></button>
+                                                <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color:#d0ebff; color:#1864ab;">JP</div>
+                                                    <div>
+                                                        <strong>Juan Pablo Morales</strong>
+                                                        <span>Origen: Evangelismo General</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Pr. Ricardo Morales</td>
+                                            <td>
+                                                <div class="progress-bar-container">
+                                                    <div class="progress-bar" style="width: 25%;"></div>
+                                                </div>
+                                                <small>Lección 1 de 4 (25%)</small>
+                                            </td>
+                                            <td>19 Ago, 18:00</td>
+                                            <td><span class="status success">En fecha</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Registrar Avance" onclick="alert('Registrando avance de lección para Juan Pablo Morales')"><span class="material-symbols-outlined">check_circle</span></button>
+                                                <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="person-cell">
+                                                    <div class="avatar-small" style="background-color:#c3fae8; color:#087f5b;">AC</div>
+                                                    <div>
+                                                        <strong>Andrés Castillo</strong>
+                                                        <span>Origen: Evangelismo Jóvenes</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>Laura Gómez</td>
+                                            <td>
+                                                <div class="progress-bar-container">
+                                                    <div class="progress-bar bg-success" style="width: 100%;"></div>
+                                                </div>
+                                                <small>Lección 4 de 4 (100%)</small>
+                                            </td>
+                                            <td>23 Ago (Bautismos)</td>
+                                            <td><span class="status success">Listo Bautismo</span></td>
+                                            <td>
+                                                <button class="action-btn" title="Ver Ficha"><span class="material-symbols-outlined">visibility</span></button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Sub-tab 2: Grupos de Discipulado en Casas o Iglesia -->
+                        <div id="tab-unified-grupos" class="subtab-content" style="display:none;">
+                            <div class="grid-3 p-20" id="gridDiscipleshipGroups">
+                                <div class="group-card">
+                                    <div class="group-header">
+                                        <span class="material-symbols-outlined icon">home</span>
+                                        <div>
+                                            <h4>Discipulado "Betel"</h4>
+                                            <span>Lugar: En casa de Fam. Pérez (Sector Centro)</span>
+                                        </div>
+                                    </div>
+                                    <div class="group-body">
+                                        <p><strong>Líder:</strong> Pr. Ricardo Morales</p>
+                                        <p><strong>Horario:</strong> Miércoles 19:30</p>
+                                        <p><strong>Integrantes:</strong> 14 personas</p>
+                                    </div>
+                                    <div class="group-footer">
+                                        <button class="secondary-button" onclick="alert('Ver integrantes de Discipulado Betel')">Ver Integrantes</button>
+                                    </div>
+                                </div>
+
+                                <div class="group-card">
+                                    <div class="group-header">
+                                        <span class="material-symbols-outlined icon">home</span>
+                                        <div>
+                                            <h4>Discipulado "Esperanza"</h4>
+                                            <span>Lugar: En casa de Hna. Elena (Sector Norte)</span>
+                                        </div>
+                                    </div>
+                                    <div class="group-body">
+                                        <p><strong>Líder:</strong> María Rodríguez</p>
+                                        <p><strong>Horario:</strong> Jueves 20:00</p>
+                                        <p><strong>Integrantes:</strong> 11 personas</p>
+                                    </div>
+                                    <div class="group-footer">
+                                        <button class="secondary-button" onclick="alert('Ver integrantes de Discipulado Esperanza')">Ver Integrantes</button>
+                                    </div>
+                                </div>
+
+                                <div class="group-card">
+                                    <div class="group-header">
+                                        <span class="material-symbols-outlined icon">church</span>
+                                        <div>
+                                            <h4>Discipulado Jóvenes "Fuegos de Fe"</h4>
+                                            <span>Lugar: En la Iglesia (Salón Principal)</span>
+                                        </div>
+                                    </div>
+                                    <div class="group-body">
+                                        <p><strong>Líder:</strong> Fernando López</p>
+                                        <p><strong>Horario:</strong> Sábados 17:00</p>
+                                        <p><strong>Integrantes:</strong> 35 personas</p>
+                                    </div>
+                                    <div class="group-footer">
+                                        <button class="secondary-button" onclick="alert('Ver integrantes de Discipulado Jóvenes')">Ver Integrantes</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sub-tab 3: Escuela / Academia de Formación -->
+                        <div id="tab-unified-escuela" class="subtab-content" style="display:none;">
+                            <div class="table-responsive">
+                                <table class="styled-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Estudiante</th>
+                                            <th>Nivel Académico</th>
+                                            <th>Maestro / Discipulador</th>
+                                            <th>Asistencia</th>
+                                            <th>Estado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Laura Gómez</td>
+                                            <td>Nivel 3: Liderazgo Pastoral</td>
+                                            <td>Pr. Ricardo Morales</td>
+                                            <td>95% (9/10)</td>
+                                            <td><span class="status success">Aprobando</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td>Sofía Torres</td>
+                                            <td>Nivel 2: Servidores y Carácter</td>
+                                            <td>María Rodríguez</td>
+                                            <td>80% (8/10)</td>
+                                            <td><span class="status success">Aprobando</span></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== 5. AGENDA VIEW ==================== -->
                 <div id="view-agenda" class="view-section" style="display: none;">
                     <div class="welcome-section">
                         <div>
-                            <h1>Agenda General</h1>
-                            <p>Planificación de eventos e iglesia</p>
+                            <h1>Agenda General de la Iglesia</h1>
+                            <p>Planificación de cultos, reuniones de liderazgo, bautismos y eventos especiales.</p>
+                        </div>
+                        <button class="primary-button" onclick="openModal('modalAddEvent')">
+                            <span class="material-symbols-outlined">add</span>
+                            Nuevo Evento
+                        </button>
+                    </div>
+
+                    <div class="agenda-layout">
+                        <!-- Calendar Widget -->
+                        <div class="card calendar-card">
+                            <div class="card-header">
+                                <h2>Agosto 2026</h2>
+                                <div class="flex-gap">
+                                    <button class="icon-button"><span class="material-symbols-outlined">chevron_left</span></button>
+                                    <button class="icon-button"><span class="material-symbols-outlined">chevron_right</span></button>
+                                </div>
+                            </div>
+                            <div class="calendar-grid">
+                                <div class="day-name">Dom</div>
+                                <div class="day-name">Lun</div>
+                                <div class="day-name">Mar</div>
+                                <div class="day-name">Mié</div>
+                                <div class="day-name">Jue</div>
+                                <div class="day-name">Vie</div>
+                                <div class="day-name">Sáb</div>
+
+                                <!-- Days grid -->
+                                <div class="day-cell muted">27</div>
+                                <div class="day-cell muted">28</div>
+                                <div class="day-cell muted">29</div>
+                                <div class="day-cell muted">30</div>
+                                <div class="day-cell muted">31</div>
+                                <div class="day-cell">1</div>
+                                <div class="day-cell">2</div>
+
+                                <div class="day-cell">3</div>
+                                <div class="day-cell">4</div>
+                                <div class="day-cell">5</div>
+                                <div class="day-cell">6</div>
+                                <div class="day-cell">7</div>
+                                <div class="day-cell">8</div>
+                                <div class="day-cell">9</div>
+
+                                <div class="day-cell">10</div>
+                                <div class="day-cell">11</div>
+                                <div class="day-cell">12</div>
+                                <div class="day-cell">13</div>
+                                <div class="day-cell">14</div>
+                                <div class="day-cell">15</div>
+                                <div class="day-cell">16</div>
+
+                                <div class="day-cell active-day">17 <span class="dot orange"></span></div>
+                                <div class="day-cell has-event">18 <span class="dot red"></span></div>
+                                <div class="day-cell has-event">19 <span class="dot vivid"></span></div>
+                                <div class="day-cell">20</div>
+                                <div class="day-cell">21</div>
+                                <div class="day-cell">22</div>
+                                <div class="day-cell has-event">23 <span class="dot success"></span></div>
+
+                                <div class="day-cell">24</div>
+                                <div class="day-cell">25</div>
+                                <div class="day-cell">26</div>
+                                <div class="day-cell">27</div>
+                                <div class="day-cell has-event">28 <span class="dot vivid"></span></div>
+                                <div class="day-cell">29</div>
+                                <div class="day-cell">30</div>
+                            </div>
+                        </div>
+
+                        <!-- Events List -->
+                        <div class="card events-list-card">
+                            <div class="card-header">
+                                <h2>Próximos Eventos</h2>
+                            </div>
+                            <div class="events-container p-16">
+                                <div class="event-card-item">
+                                    <div class="event-badge bg-orange">18 AGO</div>
+                                    <div class="event-info">
+                                        <h4>Reunión de Liderazgo General</h4>
+                                        <p><span class="material-symbols-outlined text-icon">schedule</span> 19:00 - 21:00 • Salón Principal</p>
+                                        <p><span class="material-symbols-outlined text-icon">person</span> Resp: Pr. Ricardo Morales</p>
+                                    </div>
+                                </div>
+
+                                <div class="event-card-item">
+                                    <div class="event-badge bg-vivid">19 AGO</div>
+                                    <div class="event-info">
+                                        <h4>Gran Salida Evangelística (Jóvenes)</h4>
+                                        <p><span class="material-symbols-outlined text-icon">schedule</span> 16:00 - 18:30 • Parque Central</p>
+                                        <p><span class="material-symbols-outlined text-icon">person</span> Resp: Min. Jóvenes</p>
+                                    </div>
+                                </div>
+
+                                <div class="event-card-item">
+                                    <div class="event-badge bg-success">23 AGO</div>
+                                    <div class="event-info">
+                                        <h4>Culto Dominical & Bautismos</h4>
+                                        <p><span class="material-symbols-outlined text-icon">schedule</span> 09:00 - 11:30 • Templo Principal</p>
+                                        <p><span class="material-symbols-outlined text-icon">water_drop</span> 5 Candidatos a Bautismos</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card">
-                        <div class="card-header">
-                            <h2>Calendario de este Mes</h2>
+                </div>
+
+                <!-- ==================== 6. REPORTES VIEW ==================== -->
+                <div id="view-reportes" class="view-section" style="display: none;">
+                    <div class="welcome-section">
+                        <div>
+                            <h1>Reportes y Métricas Eclesiásticas</h1>
+                            <p>Análisis de asistencia, retención de nuevos creyentes e indicadores clave de crecimiento.</p>
                         </div>
-                        <div style="padding: 40px; text-align: center; color: var(--texto-suave);">
-                            <span class="material-symbols-outlined" style="font-size: 48px; color: var(--borde);">calendar_month</span>
-                            <p style="margin-top: 16px;">El calendario interactivo se mostrará aquí.</p>
+                        <div class="flex-gap">
+                            <button class="secondary-button" onclick="alert('Generando PDF de reporte ministerial...')">
+                                <span class="material-symbols-outlined">picture_as_pdf</span> PDF
+                            </button>
+                            <button class="primary-button" onclick="alert('Exportando datos a Excel...')">
+                                <span class="material-symbols-outlined">table_view</span> Excel
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Visual Charts Grid -->
+                    <div class="grid-2 mb-24">
+                        <!-- Chart Card 1 -->
+                        <div class="card p-24">
+                            <h2>Asistencia Dominical (Marzo - Agosto 2026)</h2>
+                            <p style="color: var(--texto-suave); font-size: 0.85rem; margin-bottom: 20px;">Promedio de asistentes por culto dominical</p>
+                            <div class="chart-bars">
+                                <div class="bar-col"><div class="bar" style="height: 60%;" data-val="320"></div><span>Mar</span></div>
+                                <div class="bar-col"><div class="bar" style="height: 70%;" data-val="360"></div><span>Abr</span></div>
+                                <div class="bar-col"><div class="bar" style="height: 75%;" data-val="390"></div><span>May</span></div>
+                                <div class="bar-col"><div class="bar" style="height: 82%;" data-val="410"></div><span>Jun</span></div>
+                                <div class="bar-col"><div class="bar" style="height: 88%;" data-val="440"></div><span>Jul</span></div>
+                                <div class="bar-col"><div class="bar active-bar" style="height: 96%;" data-val="482"></div><span>Ago</span></div>
+                            </div>
+                        </div>
+
+                        <!-- Chart Card 2 -->
+                        <div class="card p-24">
+                            <h2>Distribución por Ministerios</h2>
+                            <p style="color: var(--texto-suave); font-size: 0.85rem; margin-bottom: 20px;">Porcentaje de miembros involucrados activamente</p>
+                            <div class="meter-list">
+                                <div class="meter-item">
+                                    <div class="meter-label"><span>Ministerio de Jóvenes</span> <strong>85 miemb. (18%)</strong></div>
+                                    <div class="meter-bg"><div class="meter-fill bg-vivid" style="width: 18%;"></div></div>
+                                </div>
+                                <div class="meter-item">
+                                    <div class="meter-label"><span>Red de Damas</span> <strong>140 miemb. (29%)</strong></div>
+                                    <div class="meter-bg"><div class="meter-fill bg-orange" style="width: 29%;"></div></div>
+                                </div>
+                                <div class="meter-item">
+                                    <div class="meter-label"><span>Red de Caballeros</span> <strong>110 miemb. (23%)</strong></div>
+                                    <div class="meter-bg"><div class="meter-fill bg-pastel" style="width: 23%;"></div></div>
+                                </div>
+                                <div class="meter-item">
+                                    <div class="meter-label"><span>Escuela Dominical Niños</span> <strong>95 niños (20%)</strong></div>
+                                    <div class="meter-bg"><div class="meter-fill bg-success" style="width: 20%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ==================== 7. CONFIGURACIÓN VIEW ==================== -->
+                <div id="view-configuracion" class="view-section" style="display: none;">
+                    <div class="welcome-section">
+                        <div>
+                            <h1>Configuración del Sistema</h1>
+                            <p>Parámetros institucionales, usuarios del sistema y preferencias de notificación.</p>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="tab-bar">
+                            <button class="tab-item active" onclick="switchSubTab(this, 'tab-config-perfil')">Perfil de la Iglesia</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-config-usuarios')">Usuarios y Roles</button>
+                            <button class="tab-item" onclick="switchSubTab(this, 'tab-config-notif')">Notificaciones & WhatsApp</button>
+                        </div>
+
+                        <!-- Perfil Form -->
+                        <div id="tab-config-perfil" class="subtab-content active p-24">
+                            <form onsubmit="event.preventDefault(); alert('Perfil guardado exitosamente');">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Nombre de la Iglesia / Congregación</label>
+                                        <input type="text" class="styled-input" value="Iglesia Central (Nombre Genérico)">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Pastor Principal</label>
+                                        <input type="text" class="styled-input" value="Pr. Ricardo Morales">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Dirección Oficial</label>
+                                        <input type="text" class="styled-input" value="Av. Principal #450, Santa Cruz de la Sierra">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Teléfono de Contacto</label>
+                                        <input type="text" class="styled-input" value="+591 3 344 5566">
+                                    </div>
+                                </div>
+                                <button type="submit" class="primary-button mt-20">Guardar Cambios</button>
+                            </form>
+                        </div>
+
+                        <!-- Usuarios Table -->
+                        <div id="tab-config-usuarios" class="subtab-content" style="display:none;">
+                            <div class="table-responsive">
+                                <table class="styled-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Usuario</th>
+                                            <th>Rol de Sistema</th>
+                                            <th>Último Acceso</th>
+                                            <th>Estado</th>
+                                            <th>Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Pr. Ricardo Morales</td>
+                                            <td><span class="status warning">Super Admin</span></td>
+                                            <td>Hoy, 10:15 AM</td>
+                                            <td><span class="status success">Activo</span></td>
+                                            <td><button class="action-btn"><span class="material-symbols-outlined">edit</span></button></td>
+                                        </tr>
+                                        <tr>
+                                            <td>María Rodríguez</td>
+                                            <td>Líder Consolidación / Discipulado</td>
+                                            <td>Ayer, 18:30 PM</td>
+                                            <td><span class="status success">Activo</span></td>
+                                            <td><button class="action-btn"><span class="material-symbols-outlined">edit</span></button></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Notif Form -->
+                        <div id="tab-config-notif" class="subtab-content p-24" style="display:none;">
+                            <div class="setting-row">
+                                <div>
+                                    <strong>Recordatorios Automáticos por WhatsApp</strong>
+                                    <p style="color:var(--texto-suave); font-size:0.85rem;">Enviar alertas 24h antes de cada cita de seguimiento o discipulado.</p>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </div>
+                            <div class="setting-row">
+                                <div>
+                                    <strong>Alertas de Cumpleaños</strong>
+                                    <p style="color:var(--texto-suave); font-size:0.85rem;">Notificar al Pastor al inicio de cada día con los cumpleañeros del padrón.</p>
+                                </div>
+                                <input type="checkbox" checked style="width: 20px; height: 20px;">
+                            </div>
                         </div>
                     </div>
                 </div>
 
             </div> <!-- End content-area -->
         </main>
+    </div>
+
+    <!-- ==================== MODALS ==================== -->
+
+    <!-- Modal 1: Añadir Miembro -->
+    <div class="modal-backdrop" id="modalAddMember">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Añadir Nuevo Miembro</h3>
+                <button class="icon-button" onclick="closeModal('modalAddMember')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSaveMember(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Nombre Completo</label>
+                        <input type="text" id="newMemName" class="styled-input" required placeholder="Ej. Juan Pérez">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Cédula de Identidad (C.I.)</label>
+                        <input type="text" id="newMemCi" class="styled-input" required placeholder="Ej. 7891234 SC">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Teléfono / WhatsApp</label>
+                        <input type="text" id="newMemPhone" class="styled-input" required placeholder="Ej. +591 700 12345">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Ministerio Asignado</label>
+                        <select id="newMemMinistry" class="styled-select w-full">
+                            <option value="Jóvenes">Jóvenes</option>
+                            <option value="Damas">Damas</option>
+                            <option value="Caballeros">Caballeros</option>
+                            <option value="Alabanza">Alabanza</option>
+                            <option value="Niños">Niños</option>
+                            <option value="Protocolo">Protocolo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAddMember')">Cancelar</button>
+                    <button type="submit" class="primary-button">Guardar Miembro</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Registrar Visita Pastoral -->
+    <div class="modal-backdrop" id="modalAddPastoralVisit">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Registrar Visita Pastoral</h3>
+                <button class="icon-button" onclick="closeModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSavePastoralVisit(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Seleccionar Miembro (Activo, Inactivo o Nuevo)</label>
+                        <select id="visitMemberSelect" class="styled-select w-full" required>
+                            <option value="Carlos Pérez (Inactivo)">Carlos Pérez (Inactivo - Urgente)</option>
+                            <option value="María Rodríguez (Nuevo Creyente)">María Rodríguez (Nuevo Creyente)</option>
+                            <option value="Pr. Ricardo Morales (Activo)">Pr. Ricardo Morales (Activo)</option>
+                            <option value="Sofía Torres (En prueba)">Sofía Torres (En prueba)</option>
+                            <option value="Gabriel Reyes (Nuevo Contacto)">Gabriel Reyes (Nuevo Contacto)</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Tipo de Visita</label>
+                        <select id="visitTypeSelect" class="styled-select w-full">
+                            <option value="Visita Pastoral">Visita Pastoral</option>
+                            <option value="Seguimiento Consolidación / Discipulado">Seguimiento Consolidación / Discipulado</option>
+                            <option value="Visita de Aliento / Salud">Visita de Aliento / Salud</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Pastor / Visitador Responsable</label>
+                        <input type="text" id="visitPastorInput" class="styled-input" required value="Pr. Ricardo Morales">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Fecha de Visita</label>
+                        <input type="text" id="visitDateInput" class="styled-input" required placeholder="Hoy, 16:00">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Observaciones / Notas Pastoral</label>
+                        <textarea id="visitNotesInput" class="styled-input" rows="3" placeholder="Detalles de la conversación, peticiones de oración o acuerdo de seguimiento..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAddPastoralVisit')">Cancelar</button>
+                    <button type="submit" class="primary-button">Registrar Visita</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 3: Asignar Discipulador / Consolidador (Flow Evangelismo -> Discipulado) -->
+    <div class="modal-backdrop" id="modalAssignConsolidator">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Asignar Discipulador / Consolidador</h3>
+                <button class="icon-button" onclick="closeModal('modalAssignConsolidator')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSaveAssignConsolidator(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Nuevo Contacto Evangelizado</label>
+                        <select id="assignNewContactSelect" class="styled-select w-full" required>
+                            <option value="Gabriel Reyes">Gabriel Reyes (Min. Jóvenes)</option>
+                            <option value="Lucía Méndez">Lucía Méndez (Min. Damas)</option>
+                            <option value="Roberto Justiniano">Roberto Justiniano (Min. Caballeros)</option>
+                            <option value="Camila Ríos">Camila Ríos (Min. Jóvenes)</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Discipulador / Consolidador Asignado</label>
+                        <select id="assignConsolidatorSelect" class="styled-select w-full" required>
+                            <option value="Pr. Ricardo Morales">Pr. Ricardo Morales</option>
+                            <option value="Hno. Mateo Morales">Hno. Mateo Morales</option>
+                            <option value="Laura Gómez">Laura Gómez</option>
+                            <option value="Ana Martínez">Ana Martínez</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Próxima Cita de Discipulado</label>
+                        <input type="text" id="assignNextDate" class="styled-input" required placeholder="Ej. Mañana, 18:00">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAssignConsolidator')">Cancelar</button>
+                    <button type="submit" class="primary-button">Asignar a Discipulado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 4: Registrar Nuevo Contacto Evangelístico (Por Ministerio) -->
+    <div class="modal-backdrop" id="modalAddContact">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Registrar Contacto Evangelístico</h3>
+                <button class="icon-button" onclick="closeModal('modalAddContact')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSaveContact(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Nombre del Contacto</label>
+                        <input type="text" id="newContactName" class="styled-input" required placeholder="Ej. Gabriel Reyes">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Teléfono / WhatsApp</label>
+                        <input type="text" id="newContactPhone" class="styled-input" required placeholder="+591 712 34567">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Ministerio Responsable</label>
+                        <select id="newContactMinistry" class="styled-select w-full">
+                            <option value="Jóvenes">Ministerio de Jóvenes</option>
+                            <option value="Damas">Ministerio de Damas</option>
+                            <option value="Caballeros">Ministerio de Caballeros</option>
+                            <option value="Alabanza">Ministerio de Alabanza</option>
+                            <option value="General">Evangelismo General</option>
+                        </select>
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Lugar / Evento de Captación</label>
+                        <input type="text" id="newContactPlace" class="styled-input" placeholder="Ej. Parque Central">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAddContact')">Cancelar</button>
+                    <button type="submit" class="primary-button">Registrar Contacto</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 5: Nuevo Grupo de Discipulado -->
+    <div class="modal-backdrop" id="modalAddDiscipleship">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Crear Nuevo Grupo de Discipulado</h3>
+                <button class="icon-button" onclick="closeModal('modalAddDiscipleship')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSaveDiscipleship(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Nombre del Grupo de Discipulado</label>
+                        <input type="text" id="newDiscName" class="styled-input" required placeholder="Ej. Discipulado Grace">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Lugar de Reunión</label>
+                        <select id="newDiscLocationType" class="styled-select w-full mb-12" onchange="toggleDiscLocationInput(this.value)">
+                            <option value="casa">En casa de un integrante</option>
+                            <option value="iglesia">En la Iglesia</option>
+                        </select>
+                        <input type="text" id="newDiscLocationDetail" class="styled-input" placeholder="Ej. En casa de Fam. Pérez (Sector Centro)">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Líder Discipulador</label>
+                        <input type="text" id="newDiscLeader" class="styled-input" required placeholder="Ej. Pr. Ricardo Morales">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Día y Hora</label>
+                        <input type="text" id="newDiscSchedule" class="styled-input" required placeholder="Ej. Miércoles 19:30">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAddDiscipleship')">Cancelar</button>
+                    <button type="submit" class="primary-button">Crear Discipulado</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 6: Nuevo Evento -->
+    <div class="modal-backdrop" id="modalAddEvent">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Crear Nuevo Evento</h3>
+                <button class="icon-button" onclick="closeModal('modalAddEvent')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <form onsubmit="handleSaveEvent(event)">
+                <div class="modal-body">
+                    <div class="form-group mb-12">
+                        <label>Título del Evento</label>
+                        <input type="text" id="newEventTitle" class="styled-input" required placeholder="Ej. Culto de Jóvenes Especial">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Fecha y Hora</label>
+                        <input type="text" id="newEventDate" class="styled-input" required placeholder="28 Ago, 19:30">
+                    </div>
+                    <div class="form-group mb-12">
+                        <label>Ubicación</label>
+                        <input type="text" id="newEventPlace" class="styled-input" placeholder="Templo Principal">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="secondary-button" onclick="closeModal('modalAddEvent')">Cancelar</button>
+                    <button type="submit" class="primary-button">Crear Evento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 7: Ver Ficha Miembro -->
+    <div class="modal-backdrop" id="modalMemberCard">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>Ficha del Miembro</h3>
+                <button class="icon-button" onclick="closeModal('modalMemberCard')"><span class="material-symbols-outlined">close</span></button>
+            </div>
+            <div class="modal-body" id="memberCardDetails">
+                <!-- Injected via JS -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="primary-button" onclick="closeModal('modalMemberCard')">Cerrar</button>
+            </div>
+        </div>
     </div>
 
     <script src="app.js"></script>

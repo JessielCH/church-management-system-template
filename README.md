@@ -3,9 +3,9 @@
 [![CodeQL Analysis](https://github.com/JessielCH/church-management-system/actions/workflows/codeql.yml/badge.svg)](https://github.com/JessielCH/church-management-system/actions/workflows/codeql.yml)
 [![CI/CD](https://github.com/JessielCH/church-management-system/actions/workflows/lint.yml/badge.svg)](https://github.com/JessielCH/church-management-system/actions/workflows/lint.yml)
 
-Administrative and Management System for Churches (Plan IEBB), designed to help manage membership, evangelism, consolidation, and discipleship.
+Administrative and Management System for Churches, designed to help manage membership, evangelism, consolidation, and discipleship.
 
-![IEBB Logo](images/logo_iebb.png)
+<img src="images/logo.svg" alt="System Logo" width="80">
 
 ## Features (MVP)
 - **Institutional Dashboard**: KPIs for membership and evangelism.
@@ -32,4 +32,4 @@ The repository uses **GitHub Actions** and **Local Hooks** to ensure code qualit
 Open `mockup/index.html` in any web browser. No installation required.
 
 ---
-*MVP Prototype created according to Plan IEBB requirements.*
+*MVP Prototype - Generic White-Label Church Management Platform.*

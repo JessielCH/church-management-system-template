@@ -1,6 +1,6 @@
 # General Architecture
 
-The **Church Management System (Plan IEBB)** is designed as a Full-Stack Monorepo. This approach minimizes DevOps overhead and keeps both the frontend and backend tightly coupled and easy to maintain.
+The **Church Management System** is designed as a Full-Stack Monorepo. This approach minimizes DevOps overhead and keeps both the frontend and backend tightly coupled and easy to maintain.
 
 ## C4 Context Diagram
 
