@@ -8,10 +8,12 @@ import {
   deleteEventAction,
 } from '@/app/actions/agendaActions';
 import { getSession } from '@/app/actions/authActions';
+import ConfirmModal from '@/components/ConfirmModal';
 
 export default function AgendaPage() {
   const [showModal, setShowModal] = useState(false);
   const [editingEvent, setEditingEvent] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
   const [userRole, setUserRole] = useState('');
   const [events, setEvents] = useState([]);
   const [reminders, setReminders] = useState({
@@ -55,10 +57,12 @@ export default function AgendaPage() {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('¿Estás seguro de que deseas eliminar este evento de la agenda?')) {
-      setEvents((prev) => prev.filter((e) => e.id !== id));
-      await deleteEventAction(id);
+  const handleConfirmDelete = async () => {
+    if (deletingId) {
+      const targetId = deletingId;
+      setDeletingId(null);
+      setEvents((prev) => prev.filter((e) => e.id !== targetId));
+      await deleteEventAction(targetId);
     }
   };
 
@@ -177,7 +181,7 @@ export default function AgendaPage() {
                       </button>
                       <button
                         className="action-btn"
-                        onClick={() => handleDelete(item.id)}
+                        onClick={() => setDeletingId(item.id)}
                         title="Eliminar Evento"
                         style={{ color: '#b91c1c', borderColor: '#fee2e2', backgroundColor: '#fee2e2' }}
                       >
@@ -191,6 +195,16 @@ export default function AgendaPage() {
           )}
         </div>
       </div>
+
+      {/* Custom UI Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={!!deletingId}
+        title="¿Eliminar Actividad de la Agenda?"
+        message="Esta acción no se puede deshacer. Se removerá este evento de la agenda pastoral y del calendario."
+        confirmText="Sí, Eliminar"
+        onConfirm={handleConfirmDelete}
+        onClose={() => setDeletingId(null)}
+      />
 
       {/* Modal 1: New Event */}
       {showModal && (
