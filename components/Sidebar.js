@@ -9,17 +9,18 @@ import { logoutAction, getSession } from '@/app/actions/authActions';
 export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
   const pathname = usePathname();
   const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState('');
 
   useEffect(() => {
     async function loadUser() {
       const session = await getSession();
       if (session) {
         const rawName = session.name || session.username || '';
-        // Sanitize legacy fake names if present in old browser cookies
         const clean = (rawName && !rawName.includes('Mendoza') && !rawName.includes('Ana María') && !rawName.includes('Coordinador'))
           ? rawName
           : (session.username || 'pastor1');
         setUserName(clean);
+        setUserRole(session.role);
       }
     }
     loadUser();
@@ -29,12 +30,15 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     return null;
   }
 
+  // Pastoral Agenda is exclusive for Pastor, Coordinator, Secretary & Admin
+  const isPastoralAgendaAllowed = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'].includes(userRole);
+
   const navItems = [
     { name: 'Dashboard', href: '/', icon: 'dashboard' },
     { name: 'Membresía', href: '/membresia', icon: 'group' },
     { name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' },
     { name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' },
-    { name: 'Agenda', href: '/agenda', icon: 'event' },
+    ...(isPastoralAgendaAllowed ? [{ name: 'Agenda Pastoral', href: '/agenda', icon: 'event' }] : []),
     { name: 'Multimedia', href: '/multimedia', icon: 'video_settings' },
     { name: 'Reportes', href: '/reportes', icon: 'monitoring' },
   ];
@@ -55,11 +59,9 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
 
           {!isCollapsed && (
             <div>
-              {/* User Name in bold dark/white text */}
               <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: '700', lineHeight: 1.2, color: 'var(--texto-oscuro, #1b1f3b)' }}>
                 {displayName}
               </h2>
-              {/* Gold/Orange subtitle for IEBB ESPERANZA EN DIOS */}
               <span style={{ fontSize: '0.65rem', color: '#e64216', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginTop: '2px' }}>
                 IEBB ESPERANZA EN DIOS
               </span>

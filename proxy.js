@@ -36,6 +36,15 @@ export function proxy(request) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
+  // 3. Pastoral Agenda (/agenda) is exclusive for Pastor, Coordinator, Secretary & Admin
+  // Multimedia and Leaders are redirected to /multimedia
+  if (session && pathname.startsWith('/agenda')) {
+    const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'];
+    if (!allowedRoles.includes(session.role)) {
+      return NextResponse.redirect(new URL('/multimedia', request.url));
+    }
+  }
+
   return NextResponse.next();
 }
 

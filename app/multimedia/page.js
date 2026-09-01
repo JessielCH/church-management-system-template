@@ -15,6 +15,7 @@ export default function MultimediaPage() {
   const [showWorshipModal, setShowWorshipModal] = useState(false);
   const [showMediaModal, setShowMediaModal] = useState(false);
   const [userRole, setUserRole] = useState('');
+  const [username, setUsername] = useState('');
   const [tickets, setTickets] = useState([]);
 
   // Dates logic for Media Request (3 days before suggestion)
@@ -31,6 +32,7 @@ export default function MultimediaPage() {
       const session = await getSession();
       if (session) {
         setUserRole(session.role);
+        setUsername(session.username);
         // If pastor/coordinator/secretary, default active tab to media requests
         if (['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(session.role)) {
           setActiveTab('media');
@@ -87,8 +89,7 @@ export default function MultimediaPage() {
     }
   };
 
-  const handleStatusToggle = async (id, currentStatus) => {
-    const nextStatus = currentStatus === 'PENDING' ? 'IN_PROGRESS' : currentStatus === 'IN_PROGRESS' ? 'COMPLETED' : 'PENDING';
+  const handleStatusChange = async (id, nextStatus) => {
     setTickets((prev) =>
       prev.map((t) => (t.id === id ? { ...t, status: nextStatus } : t))
     );
@@ -107,6 +108,9 @@ export default function MultimediaPage() {
 
   // Pastor, Coordinator, and Secretary cannot create worship song tickets (only Leader / Multimedia)
   const canCreateWorshipTicket = !['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(userRole);
+
+  // Only multimedia_admin (or ADMIN role) can assign tickets to operators
+  const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN';
 
   return (
     <div>
@@ -216,59 +220,41 @@ export default function MultimediaPage() {
                   </div>
 
                   <div className="ticket-card-footer">
+                    {/* Assignment Selector (Only editable by multimedia_admin) */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
-                      <select
-                        value={t.assignedTo || ''}
-                        onChange={(e) => handleAssignTicket(t.id, e.target.value)}
-                        style={{
-                          fontSize: '0.82rem',
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          border: '1px solid var(--borde)',
-                          backgroundColor: '#ffffff',
-                          fontWeight: '600',
-                          color: t.assignedTo ? '#4338ca' : '#6b7280',
-                        }}
-                      >
-                        <option value="">Sin Asignar</option>
-                        <option value="multimedia1">multimedia1 (Operador 1)</option>
-                        <option value="multimedia2">multimedia2 (Operador 2)</option>
-                      </select>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          fontSize: '0.82rem',
-                          fontWeight: '700',
-                          padding: '6px 14px',
-                          borderRadius: '20px',
-                          backgroundColor:
-                            t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
-                          color:
-                            t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
-                          border:
-                            t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
-                        }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                          {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                      {isMultimediaAdmin ? (
+                        <select
+                          value={t.assignedTo || ''}
+                          onChange={(e) => handleAssignTicket(t.id, e.target.value)}
+                          style={{
+                            fontSize: '0.82rem',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--borde)',
+                            backgroundColor: '#ffffff',
+                            fontWeight: '600',
+                            color: t.assignedTo ? '#4338ca' : '#6b7280',
+                          }}
+                        >
+                          <option value="">Sin Asignar</option>
+                          <option value="multimedia1">multimedia1 (Operador 1)</option>
+                          <option value="multimedia2">multimedia2 (Operador 2)</option>
+                        </select>
+                      ) : (
+                        <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
+                          {t.assignedTo || 'Sin Asignar'}
                         </span>
-                        {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Preparación' : 'Pendiente'}
-                      </span>
-
-                      <button
-                        className="action-btn"
-                        onClick={() => handleStatusToggle(t.id, t.status)}
-                        title="Cambiar Estado de la Tarea"
-                      >
-                        <span className="material-symbols-outlined">sync_alt</span>
-                      </button>
+                      )}
                     </div>
+
+                    {/* Sliding Dropdown Options Menu */}
+                    <TicketStatusDropdown
+                      ticket={t}
+                      userRole={userRole}
+                      username={username}
+                      onStatusChange={handleStatusChange}
+                    />
                   </div>
                 </div>
               ))
@@ -329,59 +315,41 @@ export default function MultimediaPage() {
                   </div>
 
                   <div className="ticket-card-footer">
+                    {/* Assignment Selector (Only editable by multimedia_admin) */}
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
-                      <select
-                        value={t.assignedTo || ''}
-                        onChange={(e) => handleAssignTicket(t.id, e.target.value)}
-                        style={{
-                          fontSize: '0.82rem',
-                          padding: '6px 12px',
-                          borderRadius: '8px',
-                          border: '1px solid var(--borde)',
-                          backgroundColor: '#ffffff',
-                          fontWeight: '600',
-                          color: t.assignedTo ? '#4338ca' : '#6b7280',
-                        }}
-                      >
-                        <option value="">Sin Asignar</option>
-                        <option value="multimedia1">multimedia1 (Operador 1)</option>
-                        <option value="multimedia2">multimedia2 (Operador 2)</option>
-                      </select>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span
-                        style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '6px',
-                          fontSize: '0.82rem',
-                          fontWeight: '700',
-                          padding: '6px 14px',
-                          borderRadius: '20px',
-                          backgroundColor:
-                            t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
-                          color:
-                            t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
-                          border:
-                            t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
-                        }}
-                      >
-                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                          {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                      {isMultimediaAdmin ? (
+                        <select
+                          value={t.assignedTo || ''}
+                          onChange={(e) => handleAssignTicket(t.id, e.target.value)}
+                          style={{
+                            fontSize: '0.82rem',
+                            padding: '6px 12px',
+                            borderRadius: '8px',
+                            border: '1px solid var(--borde)',
+                            backgroundColor: '#ffffff',
+                            fontWeight: '600',
+                            color: t.assignedTo ? '#4338ca' : '#6b7280',
+                          }}
+                        >
+                          <option value="">Sin Asignar</option>
+                          <option value="multimedia1">multimedia1 (Operador 1)</option>
+                          <option value="multimedia2">multimedia2 (Operador 2)</option>
+                        </select>
+                      ) : (
+                        <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
+                          {t.assignedTo || 'Sin Asignar'}
                         </span>
-                        {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Edición' : 'Pendiente'}
-                      </span>
-
-                      <button
-                        className="action-btn"
-                        onClick={() => handleStatusToggle(t.id, t.status)}
-                        title="Cambiar Estado de la Tarea"
-                      >
-                        <span className="material-symbols-outlined">sync_alt</span>
-                      </button>
+                      )}
                     </div>
+
+                    {/* Sliding Dropdown Options Menu */}
+                    <TicketStatusDropdown
+                      ticket={t}
+                      userRole={userRole}
+                      username={username}
+                      onStatusChange={handleStatusChange}
+                    />
                   </div>
                 </div>
               ))
@@ -604,6 +572,196 @@ export default function MultimediaPage() {
             </form>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Sliding Dropdown Menu for Ticket Status Updates
+ */
+function TicketStatusDropdown({ ticket, userRole, username, onStatusChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  // Operator permission check:
+  // Allowed if: username matches assignedTo OR user is multimedia_admin / ADMIN
+  const isAssignedToMe = ticket.assignedTo && (ticket.assignedTo === username || ticket.assignedTo === userRole?.toLowerCase());
+  const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN';
+
+  const canChangeStatus = isMultimediaAdmin || isAssignedToMe;
+
+  const currentStatusLabel =
+    ticket.status === 'COMPLETED'
+      ? '✓ Realizado'
+      : ticket.status === 'IN_PROGRESS'
+      ? 'En Preparación'
+      : 'Pendiente';
+
+  const currentBgColor =
+    ticket.status === 'COMPLETED'
+      ? '#dcfce7'
+      : ticket.status === 'IN_PROGRESS'
+      ? '#fef3c7'
+      : '#fee2e2';
+
+  const currentTextColor =
+    ticket.status === 'COMPLETED'
+      ? '#15803d'
+      : ticket.status === 'IN_PROGRESS'
+      ? '#b45309'
+      : '#b91c1c';
+
+  if (!canChangeStatus) {
+    return (
+      <span
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '0.82rem',
+          fontWeight: '700',
+          padding: '6px 14px',
+          borderRadius: '20px',
+          backgroundColor: currentBgColor,
+          color: currentTextColor,
+          border: ticket.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+          {ticket.status === 'COMPLETED' ? 'check_circle' : ticket.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+        </span>
+        {currentStatusLabel}
+      </span>
+    );
+  }
+
+  return (
+    <div style={{ position: 'relative', display: 'inline-block' }}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          fontSize: '0.82rem',
+          fontWeight: '700',
+          padding: '6px 14px',
+          borderRadius: '20px',
+          backgroundColor: currentBgColor,
+          color: currentTextColor,
+          border: '1px solid var(--borde)',
+          cursor: 'pointer',
+          boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+          transition: 'all 0.2s ease',
+        }}
+      >
+        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+          {ticket.status === 'COMPLETED' ? 'check_circle' : ticket.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+        </span>
+        {currentStatusLabel}
+        <span className="material-symbols-outlined" style={{ fontSize: '16px', marginLeft: '2px' }}>
+          expand_more
+        </span>
+      </button>
+
+      {/* Sliding Dropdown Options Menu */}
+      {isOpen && (
+        <>
+          <div style={{ position: 'fixed', inset: 0, zIndex: 100 }} onClick={() => setIsOpen(false)} />
+          <div
+            style={{
+              position: 'absolute',
+              right: 0,
+              top: 'calc(100% + 6px)',
+              width: '170px',
+              backgroundColor: '#ffffff',
+              borderRadius: '14px',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
+              border: '1px solid var(--borde)',
+              padding: '6px',
+              zIndex: 101,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '4px',
+            }}
+          >
+            <button
+              onClick={() => {
+                onStatusChange(ticket.id, 'PENDING');
+                setIsOpen(false);
+              }}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: ticket.status === 'PENDING' ? '#fee2e2' : 'transparent',
+                color: '#b91c1c',
+                fontWeight: '600',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>pending</span>
+              Pendiente
+            </button>
+
+            <button
+              onClick={() => {
+                onStatusChange(ticket.id, 'IN_PROGRESS');
+                setIsOpen(false);
+              }}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: ticket.status === 'IN_PROGRESS' ? '#fef3c7' : 'transparent',
+                color: '#b45309',
+                fontWeight: '600',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>hourglass_top</span>
+              En Preparación
+            </button>
+
+            <button
+              onClick={() => {
+                onStatusChange(ticket.id, 'COMPLETED');
+                setIsOpen(false);
+              }}
+              style={{
+                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '8px 12px',
+                borderRadius: '8px',
+                border: 'none',
+                backgroundColor: ticket.status === 'COMPLETED' ? '#dcfce7' : 'transparent',
+                color: '#15803d',
+                fontWeight: '600',
+                fontSize: '0.82rem',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>check_circle</span>
+              ✓ Realizado
+            </button>
+          </div>
+        </>
       )}
     </div>
   );
