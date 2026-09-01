@@ -315,11 +315,135 @@ body {
 
 /* Content Area */
 .content-area {
-    padding: 32px;
-    max-width: 1240px;
+    padding: 36px 40px;
+    max-width: 1280px;
     margin: 0 auto;
     width: 100%;
 }
+
+.content-card {
+    background-color: #ffffff;
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: 0 10px 25px -5px rgba(27, 31, 59, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+    border: 1px solid var(--borde);
+    margin-bottom: 28px;
+}
+
+.welcome-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.welcome-section h1 {
+    font-size: 2rem;
+    color: var(--azul-negro);
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+.welcome-section p {
+    color: var(--texto-suave);
+    margin-top: 6px;
+    font-size: 1rem;
+}
+
+/* Tab Bar Pill Container */
+.tabs-container {
+    display: flex;
+    gap: 8px;
+    background-color: #f3f4f6;
+    padding: 6px;
+    border-radius: 14px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    border: 1px solid var(--borde);
+}
+
+.tab-button {
+    background-color: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #4b5563;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.25s ease;
+}
+
+.tab-button:hover {
+    color: var(--azul-negro);
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+.tab-button.active {
+    background-color: var(--azul-negro);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(27, 31, 59, 0.15);
+}
+
+/* Styled Ticket Card Item */
+.ticket-card-item {
+    background-color: #ffffff;
+    border-radius: 16px;
+    border: 1px solid var(--borde);
+    padding: 20px 24px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.03);
+    transition: all 0.25s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ticket-card-item:hover {
+    border-color: var(--naranja-vivido);
+    box-shadow: 0 10px 20px -5px rgba(230, 66, 22, 0.08);
+    transform: translateY(-2px);
+}
+
+.ticket-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.ticket-card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 14px;
+    border-top: 1px solid var(--borde);
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .content-area {
+        padding: 20px 16px;
+    }
+    
+    .content-card {
+        padding: 20px 16px;
+        border-radius: 16px;
+    }
+    
+    .ticket-card-item {
+        padding: 16px;
+    }
+}
+
 
 .welcome-section {
     display: flex;

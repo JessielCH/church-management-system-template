@@ -96,11 +96,11 @@ export default function MultimediaPage() {
   const mediaTickets = tickets.filter((t) => t.category === 'MEDIA_REQUEST');
 
   return (
-    <div className="main-content">
-      <div className="page-header flex-between" style={{ alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+    <div>
+      <div className="welcome-section" style={{ marginBottom: '28px' }}>
         <div>
-          <h1>Módulo Multimedia y Proyección de Alabanzas</h1>
-          <p className="subtitle">Gestión de tickets de letras para proyección en cultos y peticiones de publicidad semanal.</p>
+          <h1>Módulo Multimedia y Proyección</h1>
+          <p>Gestión de tickets de letras para proyección en cultos y peticiones de publicidad semanal.</p>
         </div>
 
         <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
@@ -116,8 +116,8 @@ export default function MultimediaPage() {
         </div>
       </div>
 
-      {/* Tabs Bar */}
-      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+      {/* Tabs Pill Bar */}
+      <div className="tabs-container">
         <button
           onClick={() => setActiveTab('worship')}
           className={`tab-button ${activeTab === 'worship' ? 'active' : ''}`}
@@ -146,71 +146,64 @@ export default function MultimediaPage() {
       {/* Tab 1: Worship Songs Projection */}
       {activeTab === 'worship' && (
         <div className="content-card">
-          <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined text-vivid">music_note</span>
+          <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#1b1f3b' }}>
+            <span className="material-symbols-outlined text-vivid" style={{ fontSize: '26px' }}>music_note</span>
             Cola de Alabanzas para Proyectar en Culto
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
             {worshipTickets.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>queue_music</span>
-                <p style={{ margin: 0, fontWeight: '600' }}>No hay alabanzas registradas en la cola.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y director de esta semana.</p>
+              <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>queue_music</span>
+                <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay alabanzas registradas en la cola.</p>
+                <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>Presiona "+ Ticket de Alabanza" para ingresar el título, autor y director de esta semana.</p>
               </div>
             ) : (
               worshipTickets.map((t) => (
-                <div
-                  key={t.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '16px',
-                    borderRadius: '12px',
-                    border: '1px solid var(--borde)',
-                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div
-                      style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '10px',
-                        backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#fff7ed',
-                        color: t.status === 'COMPLETED' ? '#15803d' : '#ea580c',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span className="material-symbols-outlined">
-                        {t.status === 'COMPLETED' ? 'check_circle' : 'queue_music'}
-                      </span>
+                <div key={t.id} className="ticket-card-item">
+                  <div className="ticket-card-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div
+                        style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '12px',
+                          backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#fff7ed',
+                          color: t.status === 'COMPLETED' ? '#15803d' : '#ea580c',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
+                          {t.status === 'COMPLETED' ? 'check_circle' : 'queue_music'}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700', color: '#1b1f3b' }}>{t.title}</h4>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: '#4b5563' }}>
+                          {t.description}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
-                        {t.description}
-                      </p>
+
+                    <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
+                      Culto: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    {/* Assignment Selector for Multimedia Admin */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>👤 Encargado:</span>
+                  <div className="ticket-card-footer">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
                       <select
                         value={t.assignedTo || ''}
                         onChange={(e) => handleAssignTicket(t.id, e.target.value)}
                         style={{
-                          fontSize: '0.78rem',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          fontSize: '0.82rem',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
                           border: '1px solid var(--borde)',
                           backgroundColor: '#ffffff',
                           fontWeight: '600',
@@ -223,37 +216,38 @@ export default function MultimediaPage() {
                       </select>
                     </div>
 
-                    {/* Completion Status Check Badge */}
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.8rem',
-                        fontWeight: '700',
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        backgroundColor:
-                          t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
-                        color:
-                          t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
-                        border:
-                          t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                        {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontSize: '0.82rem',
+                          fontWeight: '700',
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          backgroundColor:
+                            t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
+                          color:
+                            t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
+                          border:
+                            t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                          {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                        </span>
+                        {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Preparación' : 'Pendiente'}
                       </span>
-                      {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Preparación' : 'Pendiente'}
-                    </span>
 
-                    <button
-                      className="action-btn"
-                      onClick={() => handleStatusToggle(t.id, t.status)}
-                      title="Cambiar Estado de la Tarea"
-                    >
-                      <span className="material-symbols-outlined">sync_alt</span>
-                    </button>
+                      <button
+                        className="action-btn"
+                        onClick={() => handleStatusToggle(t.id, t.status)}
+                        title="Cambiar Estado de la Tarea"
+                      >
+                        <span className="material-symbols-outlined">sync_alt</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -265,71 +259,64 @@ export default function MultimediaPage() {
       {/* Tab 2: Publicidades */}
       {activeTab === 'media' && (
         <div className="content-card">
-          <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined text-vivid">campaign</span>
+          <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#1b1f3b' }}>
+            <span className="material-symbols-outlined text-vivid" style={{ fontSize: '26px' }}>campaign</span>
             Peticiones de Publicidades y Anuncios
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div>
             {mediaTickets.length === 0 ? (
-              <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
-                <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>campaign</span>
-                <p style={{ margin: 0, fontWeight: '600' }}>No hay solicitudes de publicidad o anuncios pendientes.</p>
-                <p style={{ margin: '4px 0 0', fontSize: '0.85rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones usando "+ Petición de Publicidad".</p>
+              <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
+                <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>campaign</span>
+                <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay solicitudes de publicidad o anuncios pendientes.</p>
+                <p style={{ margin: '6px 0 0', fontSize: '0.88rem' }}>Pastores, Líderes y Secretarias pueden enviar peticiones usando "+ Petición de Publicidad".</p>
               </div>
             ) : (
               mediaTickets.map((t) => (
-                <div
-                  key={t.id}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    padding: '16px',
-                    borderRadius: '12px',
-                    border: '1px solid var(--borde)',
-                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
-                    flexWrap: 'wrap',
-                    gap: '12px',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div
-                      style={{
-                        width: '44px',
-                        height: '44px',
-                        borderRadius: '10px',
-                        backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#e0e7ff',
-                        color: t.status === 'COMPLETED' ? '#15803d' : '#4338ca',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span className="material-symbols-outlined">
-                        {t.status === 'COMPLETED' ? 'check_circle' : 'campaign'}
-                      </span>
+                <div key={t.id} className="ticket-card-item">
+                  <div className="ticket-card-header">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div
+                        style={{
+                          width: '46px',
+                          height: '46px',
+                          borderRadius: '12px',
+                          backgroundColor: t.status === 'COMPLETED' ? '#dcfce7' : '#e0e7ff',
+                          color: t.status === 'COMPLETED' ? '#15803d' : '#4338ca',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '24px' }}>
+                          {t.status === 'COMPLETED' ? 'check_circle' : 'campaign'}
+                        </span>
+                      </div>
+                      <div>
+                        <h4 style={{ margin: 0, fontSize: '1.05rem', fontWeight: '700', color: '#1b1f3b' }}>{t.title}</h4>
+                        <p style={{ margin: '4px 0 0', fontSize: '0.88rem', color: '#4b5563' }}>
+                          {t.description}
+                        </p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '1rem', color: '#1b1f3b' }}>{t.title}</h4>
-                      <p style={{ margin: '4px 0 0', fontSize: '0.85rem', color: '#6b7280' }}>
-                        {t.description}
-                      </p>
+
+                    <div style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <span className="material-symbols-outlined" style={{ fontSize: '16px' }}>event</span>
+                      Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-                    {/* Assignment Selector for Multimedia Admin */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <span style={{ fontSize: '0.78rem', color: '#6b7280', fontWeight: '600' }}>👤 Encargado:</span>
+                  <div className="ticket-card-footer">
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
                       <select
                         value={t.assignedTo || ''}
                         onChange={(e) => handleAssignTicket(t.id, e.target.value)}
                         style={{
-                          fontSize: '0.78rem',
-                          padding: '4px 8px',
-                          borderRadius: '6px',
+                          fontSize: '0.82rem',
+                          padding: '6px 12px',
+                          borderRadius: '8px',
                           border: '1px solid var(--borde)',
                           backgroundColor: '#ffffff',
                           fontWeight: '600',
@@ -342,37 +329,38 @@ export default function MultimediaPage() {
                       </select>
                     </div>
 
-                    {/* Completion Status Check Badge */}
-                    <span
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '0.8rem',
-                        fontWeight: '700',
-                        padding: '6px 12px',
-                        borderRadius: '20px',
-                        backgroundColor:
-                          t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
-                        color:
-                          t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
-                        border:
-                          t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
-                      }}
-                    >
-                      <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
-                        {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span
+                        style={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          fontSize: '0.82rem',
+                          fontWeight: '700',
+                          padding: '6px 14px',
+                          borderRadius: '20px',
+                          backgroundColor:
+                            t.status === 'COMPLETED' ? '#dcfce7' : t.status === 'IN_PROGRESS' ? '#fef3c7' : '#fee2e2',
+                          color:
+                            t.status === 'COMPLETED' ? '#15803d' : t.status === 'IN_PROGRESS' ? '#b45309' : '#b91c1c',
+                          border:
+                            t.status === 'COMPLETED' ? '1px solid #86efac' : '1px solid transparent',
+                        }}
+                      >
+                        <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>
+                          {t.status === 'COMPLETED' ? 'check_circle' : t.status === 'IN_PROGRESS' ? 'hourglass_top' : 'pending'}
+                        </span>
+                        {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Edición' : 'Pendiente'}
                       </span>
-                      {t.status === 'COMPLETED' ? '✓ Realizado' : t.status === 'IN_PROGRESS' ? 'En Edición' : 'Pendiente'}
-                    </span>
 
-                    <button
-                      className="action-btn"
-                      onClick={() => handleStatusToggle(t.id, t.status)}
-                      title="Cambiar Estado de la Tarea"
-                    >
-                      <span className="material-symbols-outlined">sync_alt</span>
-                    </button>
+                      <button
+                        className="action-btn"
+                        onClick={() => handleStatusToggle(t.id, t.status)}
+                        title="Cambiar Estado de la Tarea"
+                      >
+                        <span className="material-symbols-outlined">sync_alt</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))
@@ -384,53 +372,57 @@ export default function MultimediaPage() {
       {/* Tab 3: Production Calendar */}
       {activeTab === 'calendar' && (
         <div className="content-card">
-          <h3 style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined text-vivid">calendar_month</span>
+          <h3 style={{ marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '10px', fontSize: '1.2rem', color: '#1b1f3b' }}>
+            <span className="material-symbols-outlined text-vivid" style={{ fontSize: '26px' }}>calendar_month</span>
             Calendario de Entregas para Cultos y Eventos
           </h3>
 
           {tickets.length === 0 ? (
-            <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', border: '1px dashed var(--borde)', borderRadius: '12px' }}>
-              <span className="material-symbols-outlined" style={{ fontSize: '36px', color: '#9ca3af', marginBottom: '8px' }}>event_busy</span>
-              <p style={{ margin: 0, fontWeight: '600' }}>No hay eventos programados en el calendario multimedia.</p>
+            <div style={{ padding: '48px 24px', textAlign: 'center', color: '#6b7280', border: '2px dashed var(--borde)', borderRadius: '16px', backgroundColor: '#fafafa' }}>
+              <span className="material-symbols-outlined" style={{ fontSize: '48px', color: '#9ca3af', marginBottom: '12px' }}>event_busy</span>
+              <p style={{ margin: 0, fontWeight: '700', fontSize: '1.05rem', color: '#1b1f3b' }}>No hay eventos programados en el calendario multimedia.</p>
             </div>
           ) : (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '16px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '20px' }}>
               {tickets.map((t) => (
                 <div
                   key={t.id}
                   style={{
-                    padding: '16px',
-                    borderRadius: '12px',
+                    padding: '20px',
+                    borderRadius: '16px',
                     border: '1px solid var(--borde)',
-                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#f9fafb',
+                    backgroundColor: t.status === 'COMPLETED' ? '#f0fdf4' : '#ffffff',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <span
                       style={{
-                        fontSize: '0.75rem',
+                        fontSize: '0.78rem',
                         fontWeight: '700',
                         textTransform: 'uppercase',
                         color: t.category === 'WORSHIP_SONG' ? '#ea580c' : '#4338ca',
+                        padding: '4px 10px',
+                        borderRadius: '20px',
+                        backgroundColor: t.category === 'WORSHIP_SONG' ? '#fff7ed' : '#e0e7ff',
                       }}
                     >
                       {t.category === 'WORSHIP_SONG' ? '🎵 Alabanza' : '🎬 Publicidad'}
                     </span>
-                    <span style={{ fontSize: '0.78rem', color: '#6b7280' }}>
-                      Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
+                    <span style={{ fontSize: '0.82rem', color: '#6b7280', fontWeight: '500' }}>
+                      📅 Entrega: {new Date(t.eventDate || Date.now()).toLocaleDateString('es-ES')}
                     </span>
                   </div>
-                  <h4 style={{ margin: '0 0 6px', fontSize: '0.95rem', color: '#1b1f3b' }}>{t.title}</h4>
-                  <p style={{ margin: 0, fontSize: '0.82rem', color: '#4b5563' }}>{t.description}</p>
+                  <h4 style={{ margin: '0 0 8px', fontSize: '1.05rem', fontWeight: '700', color: '#1b1f3b' }}>{t.title}</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: '#4b5563', lineHeight: '1.5' }}>{t.description}</p>
 
-                  <div style={{ marginTop: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                    <span style={{ fontSize: '0.75rem', color: '#4f46e5', fontWeight: '600' }}>
+                  <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid var(--borde)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#4f46e5', fontWeight: '600' }}>
                       👤 Encargado: {t.assignedTo || 'Sin Asignar'}
                     </span>
                     <span
                       style={{
-                        fontSize: '0.75rem',
+                        fontSize: '0.8rem',
                         fontWeight: '700',
                         color: t.status === 'COMPLETED' ? '#15803d' : '#b45309',
                       }}
