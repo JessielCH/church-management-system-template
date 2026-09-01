@@ -71,7 +71,7 @@ export async function loginAction(prevState, formData) {
     return { error: 'Nombre de usuario o contraseña incorrectos.' };
   }
 
-  // Create session cookie
+  // Create session cookie with exact DB values
   const sessionData = {
     id: user.id,
     username: user.username,
@@ -88,7 +88,7 @@ export async function loginAction(prevState, formData) {
     maxAge: 60 * 60 * 24,
   });
 
-  // Direct login to dashboard (No mandatory password change prompt)
+  // Direct login to dashboard
   return { success: true, redirectTo: '/' };
 }
 
@@ -150,12 +150,38 @@ export async function logoutAction() {
   redirect('/login');
 }
 
+/**
+ * Retrieves active session, always querying Prisma DB live by username to ensure fresh DB values.
+ */
 export async function getSession() {
   const cookieStore = await cookies();
   const sessionCookie = cookieStore.get('auth_session');
   if (!sessionCookie) return null;
+  
   try {
-    return JSON.parse(sessionCookie.value);
+    const parsed = JSON.parse(sessionCookie.value);
+    
+    // Always query database live for fresh user details
+    if (parsed.username) {
+      try {
+        const dbUser = await prisma.user.findUnique({
+          where: { username: parsed.username },
+        });
+        if (dbUser) {
+          return {
+            id: dbUser.id,
+            username: dbUser.username,
+            name: dbUser.name, // Returns exact name from Supabase DB (e.g. pastor1)
+            role: dbUser.role,
+            mustChangePassword: dbUser.mustChangePassword,
+          };
+        }
+      } catch (dbErr) {
+        console.warn('Could not fetch live session from DB:', dbErr.message);
+      }
+    }
+    
+    return parsed;
   } catch {
     return null;
   }
