@@ -64,7 +64,10 @@ export default async function DashboardPage() {
     timeIcon = 'bedtime';
   }
 
-  const usernameDisplay = session?.name || session?.username || 'Usuario';
+  const rawName = session?.name || session?.username || 'pastor1';
+  const usernameDisplay = (rawName && !rawName.includes('Mendoza') && !rawName.includes('Ana María') && !rawName.includes('Coordinador'))
+    ? rawName
+    : (session?.username || 'pastor1');
 
   // Fetch daily scripture verse from database
   let dailyVerse = {

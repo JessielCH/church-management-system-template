@@ -14,7 +14,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     async function loadUser() {
       const session = await getSession();
       if (session) {
-        setUserName(session.name || session.username || 'Usuario');
+        const rawName = session.name || session.username || '';
+        // Sanitize legacy fake names if present in old browser cookies
+        const clean = (rawName && !rawName.includes('Mendoza') && !rawName.includes('Ana María') && !rawName.includes('Coordinador'))
+          ? rawName
+          : (session.username || 'pastor1');
+        setUserName(clean);
       }
     }
     loadUser();
@@ -34,40 +39,28 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     { name: 'Reportes', href: '/reportes', icon: 'monitoring' },
   ];
 
+  const displayName = userName || 'pastor1';
+
   return (
     <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          {/* White Badge Container to make LOGOIEBB.png pop out sharply */}
-          <div
-            style={{
-              backgroundColor: '#ffffff',
-              padding: '4px',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.25)',
-              flexShrink: 0,
-            }}
-          >
-            <Image
-              src="/images/LOGOIEBB.png"
-              alt="IEBB Logo"
-              width={34}
-              height={34}
-              style={{ objectFit: 'contain' }}
-            />
-          </div>
+          <Image
+            src="/images/LOGOIEBB.png"
+            alt="IEBB Logo"
+            width={38}
+            height={38}
+            style={{ objectFit: 'contain', flexShrink: 0 }}
+          />
 
           {!isCollapsed && (
             <div>
-              {/* White text for user's name */}
-              <h2 style={{ fontSize: '1rem', margin: 0, color: '#ffffff', fontWeight: '700', lineHeight: 1.2 }}>
-                {userName || 'pastor1'}
+              {/* User Name in bold dark/white text */}
+              <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: '700', lineHeight: 1.2, color: 'var(--texto-oscuro, #1b1f3b)' }}>
+                {displayName}
               </h2>
-              {/* Gold subtitle for IEBB ESPERANZA EN DIOS */}
-              <span style={{ fontSize: '0.66rem', color: '#f6c981', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginTop: '2px' }}>
+              {/* Gold/Orange subtitle for IEBB ESPERANZA EN DIOS */}
+              <span style={{ fontSize: '0.65rem', color: '#e64216', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginTop: '2px' }}>
                 IEBB ESPERANZA EN DIOS
               </span>
             </div>
@@ -76,7 +69,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
 
         {/* Mobile close button */}
         {isMobileOpen && (
-          <button className="icon-button mobile-close-btn" onClick={onCloseMobile} style={{ color: '#ffffff' }}>
+          <button className="icon-button mobile-close-btn" onClick={onCloseMobile} style={{ color: '#1b1f3b' }}>
             <span className="material-symbols-outlined">close</span>
           </button>
         )}
@@ -116,21 +109,21 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
         </Link>
 
         {!isCollapsed && (
-          <div className="user-profile" style={{ justifyContent: 'space-between' }}>
+          <div className="user-profile" style={{ justifyContent: 'space-between', border: '1px solid #e5e7eb' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <div className="avatar">
-                {userName ? userName.charAt(0).toUpperCase() : 'U'}
+              <div className="avatar" style={{ backgroundColor: '#1b1f3b', color: '#ffffff' }}>
+                {displayName.charAt(0).toUpperCase()}
               </div>
               <div className="user-info">
-                <strong>{userName || 'Usuario'}</strong>
-                <span>IEBB Esperanza</span>
+                <strong style={{ color: '#1b1f3b' }}>{displayName}</strong>
+                <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>IEBB Esperanza</span>
               </div>
             </div>
             <button
               onClick={() => logoutAction()}
               title="Cerrar Sesión"
               className="action-btn"
-              style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}
+              style={{ color: '#e64216', borderColor: '#e5e7eb' }}
             >
               <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
             </button>

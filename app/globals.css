@@ -55,11 +55,12 @@ body {
 /* Sidebar */
 .sidebar {
     width: 260px;
-    background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-    color: var(--blanco-naturaleza);
+    background-color: #ffffff;
+    color: var(--texto-oscuro);
     display: flex;
     flex-direction: column;
-    box-shadow: 4px 0 16px rgba(0, 0, 0, 0.15);
+    border-right: 1px solid #e5e7eb;
+    box-shadow: 2px 0 12px rgba(0, 0, 0, 0.03);
     z-index: 10;
 }
 
@@ -68,14 +69,15 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid #e5e7eb;
+    background-color: #fafafa;
 }
 
 .sidebar-header h2 {
-    font-size: 1.25rem;
+    font-size: 1rem;
     font-weight: 700;
-    letter-spacing: 0.5px;
-    color: var(--naranja-pastel);
+    letter-spacing: 0.2px;
+    color: var(--texto-oscuro);
 }
 
 .sidebar-nav {
@@ -91,28 +93,30 @@ body {
     align-items: center;
     gap: 12px;
     padding: 12px 24px;
-    color: rgba(254, 254, 254, 0.7);
+    color: #4b5563;
     text-decoration: none;
     font-weight: 500;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     border-left: 3px solid transparent;
     cursor: pointer;
 }
 
 .nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.05);
-    color: var(--naranja-pastel);
+    background-color: #f3f4f6;
+    color: #e64216;
 }
 
 .nav-item.active {
-    background-color: rgba(230, 66, 22, 0.15);
-    color: var(--naranja-pastel);
-    border-left-color: var(--naranja-vivido);
+    background-color: #fff4ed;
+    color: #e64216;
+    border-left-color: #e64216;
+    font-weight: 700;
 }
 
 .sidebar-footer {
     padding: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid #e5e7eb;
+    background-color: #fafafa;
 }
 
 .user-profile {
@@ -120,15 +124,16 @@ body {
     align-items: center;
     gap: 12px;
     margin-top: 16px;
-    padding: 8px;
-    border-radius: 8px;
-    background-color: rgba(255, 255, 255, 0.05);
+    padding: 10px 12px;
+    border-radius: 12px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
     cursor: pointer;
     transition: background 0.3s ease;
 }
 
 .user-profile:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: #f9fafb;
 }
 
 .avatar {
