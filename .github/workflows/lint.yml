@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ "qa", "staging", "main" ]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
   commitlint:
     runs-on: ubuntu-latest

@@ -1,3 +1,14 @@
+// Helper to escape HTML and prevent DOM XSS vulnerabilities (CodeQL Security Fix)
+function escapeHTML(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
 // Set current date on load
 document.addEventListener('DOMContentLoaded', () => {
     const dateElement = document.getElementById('currentDate');
@@ -245,18 +256,18 @@ function handleSavePastoralVisit(event) {
         newRow.innerHTML = `
             <td>
                 <div class="person-cell">
-                    <div class="avatar-small" style="background-color:#ffe8cc; color:#d9480f;">${initials}</div>
+                    <div class="avatar-small" style="background-color:#ffe8cc; color:#d9480f;">${escapeHTML(initials)}</div>
                     <div>
-                        <strong>${memberName}</strong>
+                        <strong>${escapeHTML(memberName)}</strong>
                         <span>${member.includes('Inactivo') ? 'Inactivo' : 'Miembro'}</span>
                     </div>
                 </div>
             </td>
-            <td>${type}</td>
-            <td>${date}</td>
+            <td>${escapeHTML(type)}</td>
+            <td>${escapeHTML(date)}</td>
             <td><span class="status warning">Programado</span></td>
             <td>
-                <button class="action-btn" title="Ver Notas" onclick="alert('Notas: ${notes || 'Sin observaciones'}')"><span class="material-symbols-outlined">notes</span></button>
+                <button class="action-btn" title="Ver Notas" onclick="alert('Notas: ${escapeHTML(notes || 'Sin observaciones')}')"><span class="material-symbols-outlined">notes</span></button>
             </td>
         `;
         tbody.prepend(newRow);
@@ -269,8 +280,8 @@ function handleSavePastoralVisit(event) {
         notifItem.innerHTML = `
             <span class="material-symbols-outlined icon">how_to_reg</span>
             <div class="text">
-                <p><strong>Visita Pastoral:</strong> ${type} a ${member.split(' (')[0]} por ${pastor}</p>
-                <span>${date}</span>
+                <p><strong>Visita Pastoral:</strong> ${escapeHTML(type)} a ${escapeHTML(member.split(' (')[0])} por ${escapeHTML(pastor)}</p>
+                <span>${escapeHTML(date)}</span>
             </div>
         `;
         notifList.prepend(notifItem);
@@ -301,21 +312,21 @@ function handleSaveAssignConsolidator(event) {
         newRow.innerHTML = `
             <td>
                 <div class="person-cell">
-                    <div class="avatar-small" style="background-color:#ffd8a8; color:#d9480f;">${initials}</div>
+                    <div class="avatar-small" style="background-color:#ffd8a8; color:#d9480f;">${escapeHTML(initials)}</div>
                     <div>
-                        <strong>${cleanName}</strong>
+                        <strong>${escapeHTML(cleanName)}</strong>
                         <span>Nuevo Creyente</span>
                     </div>
                 </div>
             </td>
-            <td>${consolidatorName}</td>
+            <td>${escapeHTML(consolidatorName)}</td>
             <td>
                 <div class="progress-bar-container">
                     <div class="progress-bar" style="width: 10%;"></div>
                 </div>
                 <small>Lección 1 de 4 (0%)</small>
             </td>
-            <td>${nextDate}</td>
+            <td>${escapeHTML(nextDate)}</td>
             <td><span class="status warning">Iniciando</span></td>
             <td>
                 <button class="action-btn" title="Registrar Avance" onclick="alert('Registrando avance de lección para ${cleanName}')"><span class="material-symbols-outlined">check_circle</span></button>
@@ -356,20 +367,20 @@ function handleSaveMember(event) {
         newRow.innerHTML = `
             <td>
                 <div class="person-cell">
-                    <div class="avatar-small" style="background-color:#d0ebff; color:#1864ab;">${initials}</div>
+                    <div class="avatar-small" style="background-color:#d0ebff; color:#1864ab;">${escapeHTML(initials)}</div>
                     <div>
-                        <strong>${name}</strong>
+                        <strong>${escapeHTML(name)}</strong>
                         <span>Nuevo Miembro</span>
                     </div>
                 </div>
             </td>
-            <td>${ci}</td>
-            <td>${phone}<br><small style="color:var(--texto-suave)">registrado hoy</small></td>
-            <td><span class="tag">${ministry}</span></td>
+            <td>${escapeHTML(ci)}</td>
+            <td>${escapeHTML(phone)}<br><small style="color:var(--texto-suave)">registrado hoy</small></td>
+            <td><span class="tag">${escapeHTML(ministry)}</span></td>
             <td><span class="status warning">Pendiente</span></td>
             <td><span class="status success">Activo</span></td>
             <td>
-                <button class="action-btn" title="Ver Ficha" onclick="showMemberCard('${name}', 'Nuevo Miembro', '${ci}', '${phone}', 'sin_correo@ejemplo.org', '${ministry}', 'Pendiente', 'Activo')"><span class="material-symbols-outlined">visibility</span></button>
+                <button class="action-btn" title="Ver Ficha" onclick="showMemberCard('${escapeHTML(name)}', 'Nuevo Miembro', '${escapeHTML(ci)}', '${escapeHTML(phone)}', 'sin_correo@ejemplo.org', '${escapeHTML(ministry)}', 'Pendiente', 'Activo')"><span class="material-symbols-outlined">visibility</span></button>
                 <button class="action-btn" title="Visita Pastoral" onclick="openModal('modalAddPastoralVisit')"><span class="material-symbols-outlined">how_to_reg</span></button>
             </td>
         `;
@@ -398,11 +409,11 @@ function handleSaveContact(event) {
         card.className = 'pipeline-card';
         card.setAttribute('data-ministry', ministry);
         card.innerHTML = `
-            <strong>${name}</strong>
-            <p>${place} • Tel: ${phone}</p>
+            <strong>${escapeHTML(name)}</strong>
+            <p>${escapeHTML(place)} • Tel: ${escapeHTML(phone)}</p>
             <div class="flex-between">
-                <span class="badge-tag">Min. ${ministry}</span>
-                <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('${name}')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
+                <span class="badge-tag">Min. ${escapeHTML(ministry)}</span>
+                <button class="action-btn compact" title="Asignar a Discipulado" onclick="openModalAssignWithContact('${escapeHTML(name)}')"><span class="material-symbols-outlined" style="font-size:16px;">handshake</span></button>
             </div>
         `;
         col.prepend(card);
@@ -446,17 +457,17 @@ function handleSaveDiscipleship(event) {
             <div class="group-header">
                 <span class="material-symbols-outlined icon">${iconName}</span>
                 <div>
-                    <h4>${name}</h4>
-                    <span>Lugar: ${location}</span>
+                    <h4>${escapeHTML(name)}</h4>
+                    <span>Lugar: ${escapeHTML(location)}</span>
                 </div>
             </div>
             <div class="group-body">
-                <p><strong>Líder:</strong> ${leader}</p>
-                <p><strong>Horario:</strong> ${schedule}</p>
+                <p><strong>Líder:</strong> ${escapeHTML(leader)}</p>
+                <p><strong>Horario:</strong> ${escapeHTML(schedule)}</p>
                 <p><strong>Integrantes:</strong> 1 persona (Nuevo)</p>
             </div>
             <div class="group-footer">
-                <button class="secondary-button" onclick="alert('Ver integrantes de ${name}')">Ver Integrantes</button>
+                <button class="secondary-button" onclick="alert('Ver integrantes de ${escapeHTML(name)}')">Ver Integrantes</button>
             </div>
         `;
         grid.prepend(card);
@@ -490,8 +501,8 @@ function handleSaveEvent(event) {
         item.innerHTML = `
             <div class="event-badge bg-vivid">NUEVO</div>
             <div class="event-info">
-                <h4>${title}</h4>
-                <p><span class="material-symbols-outlined text-icon">schedule</span> ${date} • ${place}</p>
+                <h4>${escapeHTML(title)}</h4>
+                <p><span class="material-symbols-outlined text-icon">schedule</span> ${escapeHTML(date)} • ${escapeHTML(place)}</p>
                 <p><span class="material-symbols-outlined text-icon">person</span> Resp: Liderazgo</p>
             </div>
         `;
