@@ -3,24 +3,34 @@
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 
-export default function TopHeader() {
+export default function TopHeader({ onToggleSidebar }) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const pathname = usePathname();
 
-  // Do not render TopHeader on Login or Change Password pages
   if (pathname === '/login' || pathname === '/change-password') {
     return null;
   }
 
   return (
     <header className="top-header">
-      <div className="search-bar">
-        <span className="material-symbols-outlined">search</span>
-        <input
-          type="text"
-          placeholder="Buscar miembros, ministerios, eventos..."
-        />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1 }}>
+        {/* Toggle Sidebar Button */}
+        <button
+          className="icon-button sidebar-toggle-btn"
+          onClick={onToggleSidebar}
+          title="Desplegar / Minimizar Menú"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </button>
+
+        <div className="search-bar">
+          <span className="material-symbols-outlined">search</span>
+          <input
+            type="text"
+            placeholder="Buscar miembros, ministerios, eventos..."
+          />
+        </div>
       </div>
 
       <div className="header-actions">
@@ -29,7 +39,7 @@ export default function TopHeader() {
           onClick={() => setShowNotifications(!showNotifications)}
         >
           <span className="material-symbols-outlined">notifications</span>
-          <span className="badge">3</span>
+          <span className="badge">0</span>
         </button>
 
         <div className="dropdown-container">
@@ -49,17 +59,20 @@ export default function TopHeader() {
 
           {showDropdown && (
             <div className="dropdown-menu active">
-              <a href="#" className="dropdown-item">
+              <a href="/membresia" className="dropdown-item">
                 <span className="material-symbols-outlined">person_add</span> Añadir Miembro
               </a>
-              <a href="#" className="dropdown-item">
+              <a href="/evangelismo" className="dropdown-item">
                 <span className="material-symbols-outlined">campaign</span> Nuevo Contacto
               </a>
-              <a href="#" className="dropdown-item">
+              <a href="/consolidacion" className="dropdown-item">
                 <span className="material-symbols-outlined">handshake</span> Asignar Discipulador
               </a>
-              <a href="#" className="dropdown-item">
+              <a href="/agenda" className="dropdown-item">
                 <span className="material-symbols-outlined">event</span> Nuevo Evento
+              </a>
+              <a href="/multimedia" className="dropdown-item">
+                <span className="material-symbols-outlined">video_settings</span> Ticket Multimedia
               </a>
             </div>
           )}

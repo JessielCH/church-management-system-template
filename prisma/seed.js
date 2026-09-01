@@ -3,56 +3,59 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('Seeding initial church database records with bcrypt hashed passwords...');
+  console.log('Seeding user accounts with exact usernames as names (no fake names)...');
 
-  // Hash initial temporary admin password securely ($2a$10$...)
-  const hashedAdminPassword = bcrypt.hashSync('admin123', 10);
+  const usersToSeed = [
+    { username: 'pastor1', name: 'pastor1', role: 'PASTOR', pass: 'pastor1' },
+    { username: 'admin', name: 'admin', role: 'COORDINADOR', pass: 'admin123' },
+    { username: 'secretaria1', name: 'secretaria1', role: 'SECRETARIA', pass: 'secretaria1' },
+    { username: 'multimedia_admin', name: 'multimedia_admin', role: 'MULTIMEDIA', pass: 'multimedia_admin' },
+    { username: 'multimedia1', name: 'multimedia1', role: 'MULTIMEDIA', pass: 'multimedia1' },
+    { username: 'multimedia2', name: 'multimedia2', role: 'MULTIMEDIA', pass: 'multimedia2' },
+    { username: 'lider1', name: 'lider1', role: 'LEADER', pass: 'lider1' },
+  ];
 
-  // Create Admin User with Username & bcrypt Hashed Password
-  const admin = await prisma.user.upsert({
-    where: { username: 'admin' },
-    update: {
-      passwordHash: hashedAdminPassword,
-    },
-    create: {
-      username: 'admin',
-      name: 'Pastor Principal',
-      passwordHash: hashedAdminPassword,
-      role: 'PASTOR',
-      mustChangePassword: true,
-    },
-  });
+  for (const u of usersToSeed) {
+    const hash = bcrypt.hashSync(u.pass, 10);
+    await prisma.user.upsert({
+      where: { username: u.username },
+      update: {
+        passwordHash: hash,
+        role: u.role,
+        name: u.name,
+        mustChangePassword: false,
+      },
+      create: {
+        username: u.username,
+        name: u.name,
+        passwordHash: hash,
+        role: u.role,
+        mustChangePassword: false,
+      },
+    });
+  }
 
-  // Create Ministries
-  await prisma.ministry.createMany({
-    skipDuplicates: true,
+  // Seed Biblical Verses into Verse table in Supabase
+  console.log('Seeding Biblical Verses into Supabase database...');
+  await prisma.verse.deleteMany({});
+  await prisma.verse.createMany({
     data: [
-      { name: 'Alabanza y Adoración', description: 'Ministerio de música', leaderName: 'Carlos Ruiz' },
-      { name: 'Evangelismo', description: 'Alcance y misiones', leaderName: 'Pr. Ricardo Morales' },
-      { name: 'Jóvenes', description: 'Ministerio juvenil', leaderName: 'Ana Mendoza' },
+      {
+        text: '«Así que, hermanos míos amados, estad firmes y constantes, creciendo en la obra del Señor siempre, sabiendo que vuestro trabajo en el Señor no es en vano.»',
+        reference: '1 Corintios 15:58',
+      },
+      {
+        text: '«Y todo lo que hagáis, hacedlo de corazón, como para el Señor y no para los hombres.»',
+        reference: 'Colosenses 3:23',
+      },
+      {
+        text: '«Jehová es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar.»',
+        reference: 'Salmos 23:1-2',
+      },
     ],
   });
 
-  // Create Sample Members
-  await prisma.member.createMany({
-    skipDuplicates: true,
-    data: [
-      { fullName: 'Pr. Ricardo Morales', identityCard: '4589201 SC', phone: '+591 710 44321', email: 'ricardo@ejemplo.org', ministry: 'Evangelismo', baptismStatus: 'BAPTIZED', status: 'ACTIVE' },
-      { fullName: 'Carlos Rodríguez', identityCard: '3940129 SC', phone: '+591 700 12345', email: 'carlos@ejemplo.org', ministry: 'Alabanza y Adoración', baptismStatus: 'PENDING', status: 'ACTIVE' },
-      { fullName: 'María Gómez', identityCard: '5120934 SC', phone: '+591 750 98765', email: 'maria@ejemplo.org', ministry: 'Jóvenes', baptismStatus: 'NOT_BAPTIZED', status: 'PENDING' },
-    ],
-  });
-
-  // Create Events
-  await prisma.event.createMany({
-    skipDuplicates: true,
-    data: [
-      { title: 'Culto de Oración y Enseñanza', date: new Date('2026-09-03T19:00:00Z'), location: 'Templo Principal', type: 'SERVICE' },
-      { title: 'Culto Dominical Principal', date: new Date('2026-09-06T09:30:00Z'), location: 'Auditorio Principal', type: 'SERVICE' },
-    ],
-  });
-
-  console.log('Database seeding completed successfully with bcrypt encryption.');
+  console.log('Database user accounts and Biblical verses updated in Supabase.');
 }
 
 main()

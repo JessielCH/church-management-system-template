@@ -1,32 +1,92 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { logoutAction } from '@/app/actions/authActions';
+import { logoutAction, getSession } from '@/app/actions/authActions';
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
   const pathname = usePathname();
+  const [userName, setUserName] = useState('');
+  const [userRole, setUserRole] = useState('');
 
-  // Do not render Sidebar on Login or Change Password pages
+  useEffect(() => {
+    async function loadUser() {
+      const session = await getSession();
+      if (session) {
+        const rawName = session.name || session.username || '';
+        const clean = (rawName && !rawName.includes('Mendoza') && !rawName.includes('Ana María') && !rawName.includes('Coordinador'))
+          ? rawName
+          : (session.username || 'pastor1');
+        setUserName(clean);
+        setUserRole(session.role);
+      }
+    }
+    loadUser();
+  }, []);
+
   if (pathname === '/login' || pathname === '/change-password') {
     return null;
   }
 
-  const navItems = [
-    { name: 'Dashboard', href: '/', icon: 'dashboard' },
-    { name: 'Membresía', href: '/membresia', icon: 'group' },
-    { name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' },
-    { name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' },
-    { name: 'Agenda', href: '/agenda', icon: 'event' },
-    { name: 'Reportes', href: '/reportes', icon: 'monitoring' },
-  ];
+  const isPastoralAgendaAllowed = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'].includes(userRole);
+  const isMultimediaOnly = userRole === 'MULTIMEDIA' || userRole === 'LEADER' || userName.includes('multimedia');
+
+  const navItems = [];
+
+  // General modules NOT for Multimedia operators
+  if (!isMultimediaOnly) {
+    navItems.push({ name: 'Dashboard', href: '/', icon: 'dashboard' });
+    navItems.push({ name: 'Membresía', href: '/membresia', icon: 'group' });
+    navItems.push({ name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' });
+    navItems.push({ name: 'Consolidación', href: '/consolidacion', icon: 'diversity_3' });
+    if (isPastoralAgendaAllowed) {
+      navItems.push({ name: 'Agenda Pastoral (Personal)', href: '/agenda', icon: 'event' });
+    }
+  }
+
+  // Multimedia and Calendar Modules (Visible to Multimedia operators and others)
+  navItems.push({ name: 'Multimedia', href: '/multimedia', icon: 'video_settings' });
+  navItems.push({ name: 'Calendario Eventos IEBB', href: '/calendario', icon: 'calendar_month' });
+
+  // Reportes NOT for Multimedia operators
+  if (!isMultimediaOnly) {
+    navItems.push({ name: 'Reportes', href: '/reportes', icon: 'monitoring' });
+  }
+
+  const displayName = userName || 'pastor1';
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${isMobileOpen ? 'mobile-open' : ''}`}>
       <div className="sidebar-header">
-        <Image src="/images/logo.svg" alt="Church Logo" width={40} height={40} style={{ borderRadius: '8px' }} />
-        <h2>Church Admin</h2>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Image
+            src="/images/LOGOIEBB.png"
+            alt="IEBB Logo"
+            width={38}
+            height={38}
+            style={{ objectFit: 'contain', flexShrink: 0 }}
+          />
+
+          {!isCollapsed && (
+            <div>
+              <h2 style={{ fontSize: '1rem', margin: 0, fontWeight: '700', lineHeight: 1.2, color: 'var(--texto-oscuro, #1b1f3b)' }}>
+                {displayName}
+              </h2>
+              <span style={{ fontSize: '0.65rem', color: '#e64216', fontWeight: '700', textTransform: 'uppercase', letterSpacing: '0.4px', display: 'block', marginTop: '2px' }}>
+                IEBB ESPERANZA EN DIOS
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile close button */}
+        {isMobileOpen && (
+          <button className="icon-button mobile-close-btn" onClick={onCloseMobile} style={{ color: '#1b1f3b' }}>
+            <span className="material-symbols-outlined">close</span>
+          </button>
+        )}
       </div>
 
       <nav className="sidebar-nav">
@@ -37,36 +97,52 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`nav-item ${isActive ? 'active' : ''}`}
+              onClick={() => {
+                if (onCloseMobile) onCloseMobile();
+              }}
+              title={isCollapsed ? item.name : ''}
             >
               <span className="material-symbols-outlined">{item.icon}</span>
-              <span>{item.name}</span>
+              {!isCollapsed && <span>{item.name}</span>}
             </Link>
           );
         })}
       </nav>
 
       <div className="sidebar-footer">
-        <Link href="/configuracion" className="nav-item">
+        <Link
+          href="/configuracion"
+          className="nav-item"
+          onClick={() => {
+            if (onCloseMobile) onCloseMobile();
+          }}
+          title={isCollapsed ? 'Configuración' : ''}
+        >
           <span className="material-symbols-outlined">settings</span>
-          <span>Configuración</span>
+          {!isCollapsed && <span>Configuración</span>}
         </Link>
-        <div className="user-profile" style={{ justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div className="avatar">P</div>
-            <div className="user-info">
-              <strong>Pastor Admin</strong>
-              <span>Pastor / Admin</span>
+
+        {!isCollapsed && (
+          <div className="user-profile" style={{ justifyContent: 'space-between', border: '1px solid #e5e7eb' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div className="avatar" style={{ backgroundColor: '#1b1f3b', color: '#ffffff' }}>
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+              <div className="user-info">
+                <strong style={{ color: '#1b1f3b' }}>{displayName}</strong>
+                <span style={{ color: '#6b7280', fontSize: '0.75rem' }}>IEBB Esperanza</span>
+              </div>
             </div>
+            <button
+              onClick={() => logoutAction()}
+              title="Cerrar Sesión"
+              className="action-btn"
+              style={{ color: '#e64216', borderColor: '#e5e7eb' }}
+            >
+              <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
+            </button>
           </div>
-          <button
-            onClick={() => logoutAction()}
-            title="Cerrar Sesión"
-            className="action-btn"
-            style={{ color: '#ffffff', borderColor: 'rgba(255,255,255,0.2)' }}
-          >
-            <span className="material-symbols-outlined" style={{ fontSize: '18px' }}>logout</span>
-          </button>
-        </div>
+        )}
       </div>
     </aside>
   );

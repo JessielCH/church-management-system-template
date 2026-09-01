@@ -31,17 +31,36 @@ export function proxy(request) {
     return NextResponse.redirect(new URL('/login', request.url));
   }
 
-  // 2. Authenticated user visiting /login -> Redirect to /
+  // 2. Authenticated user visiting /login -> Redirect directly to /
   if (session && pathname === '/login') {
-    if (session.mustChangePassword) {
-      return NextResponse.redirect(new URL('/change-password', request.url));
-    }
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 3. User with mustChangePassword: true trying to access main app -> Redirect to /change-password
-  if (session && session.mustChangePassword && pathname !== '/change-password') {
-    return NextResponse.redirect(new URL('/change-password', request.url));
+  if (session) {
+    const isMultimediaOnly =
+      session.role === 'MULTIMEDIA' ||
+      session.role === 'LEADER' ||
+      (session.username && session.username.toLowerCase().includes('multimedia'));
+
+    // 3. Strict Restriction for Multimedia & Leaders
+    // They are ONLY allowed to access /multimedia, /calendario, and /configuracion.
+    // Anything else (including the Dashboard /) redirects them to /multimedia.
+    if (isMultimediaOnly) {
+      const allowedPaths = ['/multimedia', '/calendario', '/configuracion', '/change-password'];
+      // If they try to go anywhere else (like '/', '/agenda', '/membresia'), block and redirect.
+      if (!allowedPaths.some(p => pathname.startsWith(p)) && pathname !== '/multimedia') {
+        return NextResponse.redirect(new URL('/multimedia', request.url));
+      }
+    } else {
+      // 4. Pastoral Agenda (/agenda) is exclusive for Pastor, Coordinator, Secretary & Admin
+      // (This applies for general users that aren't strictly multimedia but still aren't allowed to see agenda)
+      if (pathname.startsWith('/agenda')) {
+        const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'];
+        if (!allowedRoles.includes(session.role)) {
+          return NextResponse.redirect(new URL('/multimedia', request.url));
+        }
+      }
+    }
   }
 
   return NextResponse.next();

@@ -12,7 +12,10 @@ generator client {
 enum Role {
   ADMIN
   PASTOR
+  COORDINADOR
+  SECRETARIA
   LEADER
+  MULTIMEDIA
 }
 
 enum MemberStatus {
@@ -40,6 +43,17 @@ enum EventType {
   OUTREACH
 }
 
+enum TicketCategory {
+  WORSHIP_SONG // Alabanzas y letras para proyectar
+  MEDIA_REQUEST // Publicidades
+}
+
+enum TicketStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
 model User {
   id                 String     @id @default(uuid())
   username           String     @unique
@@ -47,7 +61,7 @@ model User {
   passwordHash       String
   name               String
   role               Role       @default(LEADER)
-  mustChangePassword Boolean    @default(true)
+  mustChangePassword Boolean    @default(false)
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @updatedAt
   followUps          FollowUp[] @relation("ConsolidatorFollowUps")
@@ -97,4 +111,24 @@ model Event {
   location  String
   type      EventType @default(SERVICE)
   createdAt DateTime  @default(now())
+}
+
+model MultimediaTicket {
+  id          String         @id @default(uuid())
+  title       String
+  category    TicketCategory @default(WORSHIP_SONG)
+  description String?
+  requestedBy String
+  assignedTo  String?
+  status      TicketStatus   @default(PENDING)
+  eventDate   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model Verse {
+  id        String   @id @default(uuid())
+  text      String
+  reference String
+  createdAt DateTime @default(now())
 }
