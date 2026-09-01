@@ -583,12 +583,9 @@ export default function MultimediaPage() {
 function TicketStatusDropdown({ ticket, userRole, username, onStatusChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
-  // Operator permission check:
-  // Allowed if: username matches assignedTo OR user is multimedia_admin / ADMIN
-  const isAssignedToMe = ticket.assignedTo && (ticket.assignedTo === username || ticket.assignedTo === userRole?.toLowerCase());
-  const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN';
-
-  const canChangeStatus = isMultimediaAdmin || isAssignedToMe;
+  // Strict operator traceability check:
+  // ONLY the specific assigned operator (e.g. multimedia1) can change status. Not even admin!
+  const canChangeStatus = ticket.assignedTo && (ticket.assignedTo === username || ticket.assignedTo === userRole?.toLowerCase());
 
   const currentStatusLabel =
     ticket.status === 'COMPLETED'
