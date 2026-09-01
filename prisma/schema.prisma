@@ -1,0 +1,127 @@
+// Prisma Schema for Church Management System
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  ADMIN
+  PASTOR
+  COORDINADOR
+  SECRETARIA
+  LEADER
+  MULTIMEDIA
+}
+
+enum MemberStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum BaptismStatus {
+  BAPTIZED
+  PENDING
+  NOT_BAPTIZED
+}
+
+enum FollowUpStatus {
+  ATTENTION_REQUIRED // Red
+  WARNING            // Yellow
+  UP_TO_DATE         // Green
+}
+
+enum EventType {
+  SERVICE
+  MINISTRY
+  TEACHING
+  OUTREACH
+}
+
+enum TicketCategory {
+  WORSHIP_SONG // Alabanzas y letras para proyectar
+  MEDIA_REQUEST // Publicidades
+}
+
+enum TicketStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+}
+
+model User {
+  id                 String     @id @default(uuid())
+  username           String     @unique
+  email              String?
+  passwordHash       String
+  name               String
+  role               Role       @default(LEADER)
+  mustChangePassword Boolean    @default(false)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  followUps          FollowUp[] @relation("ConsolidatorFollowUps")
+}
+
+model Member {
+  id            String        @id @default(uuid())
+  fullName      String
+  identityCard  String?       @unique
+  phone         String?
+  email         String?
+  ministry      String?
+  baptismStatus BaptismStatus @default(PENDING)
+  status        MemberStatus  @default(ACTIVE)
+  notes         String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  followUps     FollowUp[]
+}
+
+model Ministry {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  leaderName  String?
+  createdAt   DateTime @default(now())
+}
+
+model FollowUp {
+  id             String         @id @default(uuid())
+  memberId       String
+  member         Member         @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  consolidatorId String?
+  consolidator   User?          @relation("ConsolidatorFollowUps", fields: [consolidatorId], references: [id])
+  status         FollowUpStatus @default(WARNING)
+  notes          String?
+  lastContactAt  DateTime       @default(now())
+  nextContactAt  DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+}
+
+model Event {
+  id        String    @id @default(uuid())
+  title     String
+  date      DateTime
+  location  String
+  type      EventType @default(SERVICE)
+  createdAt DateTime  @default(now())
+}
+
+model MultimediaTicket {
+  id          String         @id @default(uuid())
+  title       String
+  category    TicketCategory @default(WORSHIP_SONG)
+  description String?
+  requestedBy String
+  assignedTo  String?
+  status      TicketStatus   @default(PENDING)
+  eventDate   DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}

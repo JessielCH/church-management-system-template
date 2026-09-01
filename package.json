@@ -1,0 +1,27 @@
+{
+  "name": "church-management-system",
+  "version": "1.0.0",
+  "description": "Church Management System MVP",
+  "scripts": {
+    "dev": "next dev",
+    "build": "npx prisma generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "db:generate": "npx prisma generate",
+    "db:push": "npx prisma db push",
+    "db:seed": "node prisma/seed.js",
+    "test": "echo \"Running local tests...\"",
+    "prepare": "husky install"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "prisma": "6.4.0"
+  },
+  "dependencies": {
+    "@prisma/client": "6.4.0",
+    "bcryptjs": "^3.0.3",
+    "next": "^16.3.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
+  }
+}

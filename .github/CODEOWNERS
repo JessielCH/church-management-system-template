@@ -1,0 +1,11 @@
+# These owners will be the default owners for everything in the repo.
+*       @JessielCH
+
+# Order is important; the last matching pattern takes the most precedence.
+
+# Docs team
+/docs/          @JessielCH
+/wiki-draft/    @JessielCH
+
+# GitHub config
+/.github/       @JessielCH
