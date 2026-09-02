@@ -89,10 +89,23 @@ export async function createMediaRequestAction(prevState, formData) {
 
 export async function assignTicketAction(ticketId, assignedTo) {
   try {
-    await prisma.multimediaTicket.update({
+    const updatedTicket = await prisma.multimediaTicket.update({
       where: { id: ticketId },
       data: { assignedTo },
     });
+
+    if (assignedTo) {
+      const user = await prisma.user.findUnique({ where: { username: assignedTo } });
+      if (user) {
+        await prisma.notification.create({
+          data: {
+            userId: user.id,
+            message: `Se te ha asignado el ticket/petición: ${updatedTicket.title}`,
+          }
+        });
+      }
+    }
+
     revalidatePath('/multimedia');
     return { success: true };
   } catch (err) {
