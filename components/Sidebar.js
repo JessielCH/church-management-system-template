@@ -31,7 +31,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
   }
 
   const isPastoralAgendaAllowed = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'ADMIN'].includes(userRole);
-  const isMultimediaOnly = userRole === 'MULTIMEDIA' || userRole === 'LEADER' || userName.includes('multimedia');
+  const isMultimediaOnly = userRole === 'MULTIMEDIA' || userRole === 'MULTIMEDIA_LEADER' || userRole === 'LEADER' || userName.includes('multimedia');
 
   const navItems = [];
 

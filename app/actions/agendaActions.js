@@ -21,7 +21,7 @@ export async function getEventsAction() {
 
 export async function createEventAction(prevState, formData) {
   const session = await getSession();
-  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'ADMIN'];
+  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'MULTIMEDIA_LEADER', 'ADMIN'];
   
   if (session && !allowedRoles.includes(session.role)) {
     return { error: 'No tienes permisos para crear eventos en la agenda.' };
@@ -78,7 +78,7 @@ export async function createEventAction(prevState, formData) {
 
 export async function updateEventAction(prevState, formData) {
   const session = await getSession();
-  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'ADMIN'];
+  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'MULTIMEDIA_LEADER', 'ADMIN'];
 
   if (session && !allowedRoles.includes(session.role)) {
     return { error: 'No tienes permisos para editar eventos.' };
@@ -116,7 +116,7 @@ export async function updateEventAction(prevState, formData) {
 
 export async function deleteEventAction(id) {
   const session = await getSession();
-  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'ADMIN'];
+  const allowedRoles = ['PASTOR', 'COORDINADOR', 'SECRETARIA', 'MULTIMEDIA', 'MULTIMEDIA_LEADER', 'ADMIN'];
 
   if (session && !allowedRoles.includes(session.role)) {
     return { error: 'No tienes permisos para eliminar eventos.' };

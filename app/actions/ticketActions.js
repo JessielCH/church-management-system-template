@@ -122,7 +122,7 @@ export async function updateTicketStatusAction(ticketId, newStatus) {
 
 export async function updateTicketAction(prevState, formData) {
   const session = await getSession();
-  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN';
+  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN' || session?.role === 'MULTIMEDIA_LEADER';
 
   if (!isMultimediaAdmin) {
     return { error: 'Únicamente el Admin de Multimedia puede editar tickets o publicaciones.' };
@@ -157,7 +157,7 @@ export async function updateTicketAction(prevState, formData) {
 
 export async function deleteTicketAction(id) {
   const session = await getSession();
-  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN';
+  const isMultimediaAdmin = session?.username === 'multimedia_admin' || session?.role === 'ADMIN' || session?.role === 'MULTIMEDIA_LEADER';
 
   if (!isMultimediaAdmin) {
     return { error: 'Únicamente el Admin de Multimedia puede eliminar tickets o publicaciones.' };

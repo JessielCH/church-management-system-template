@@ -16,6 +16,7 @@ enum Role {
   SECRETARIA
   LEADER
   MULTIMEDIA
+  MULTIMEDIA_LEADER
 }
 
 enum MemberStatus {

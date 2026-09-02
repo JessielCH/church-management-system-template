@@ -44,6 +44,7 @@ export function proxy(request) {
 
     const isMultimediaOnly =
       session.role === 'MULTIMEDIA' ||
+      session.role === 'MULTIMEDIA_LEADER' ||
       session.role === 'LEADER' ||
       (session.username && session.username.toLowerCase().includes('multimedia'));
 

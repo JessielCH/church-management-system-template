@@ -292,6 +292,7 @@ export default function UsuariosPage() {
                   <option value="SECRETARIA">Secretaría</option>
                   <option value="COORDINADOR">Coordinador</option>
                   <option value="MULTIMEDIA">Multimedia (Solo Calendario y Multimedia)</option>
+                  <option value="MULTIMEDIA_LEADER">Líder de Multimedia (Gestión Total de Tickets)</option>
                   <option value="ADMIN">Administrador (Total)</option>
                 </select>
               </div>
@@ -347,6 +348,7 @@ export default function UsuariosPage() {
                   <option value="SECRETARIA">Secretaría</option>
                   <option value="COORDINADOR">Coordinador</option>
                   <option value="MULTIMEDIA">Multimedia (Solo Calendario y Multimedia)</option>
+                  <option value="MULTIMEDIA_LEADER">Líder de Multimedia (Gestión Total de Tickets)</option>
                   <option value="ADMIN">Administrador (Total)</option>
                 </select>
               </div>
