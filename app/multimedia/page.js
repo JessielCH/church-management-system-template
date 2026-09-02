@@ -124,7 +124,7 @@ export default function MultimediaPage() {
   const canCreateWorshipTicket = !['PASTOR', 'COORDINADOR', 'SECRETARIA'].includes(userRole);
 
   // Only multimedia_admin (or ADMIN role) can assign tickets, edit tickets, or delete tickets
-  const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN';
+  const isMultimediaAdmin = username === 'multimedia_admin' || userRole === 'ADMIN' || userRole === 'MULTIMEDIA_LEADER';
 
   return (
     <div>
@@ -291,6 +291,7 @@ export default function MultimediaPage() {
                       ticket={t}
                       userRole={userRole}
                       username={username}
+                      isMultimediaAdmin={isMultimediaAdmin}
                       onStatusChange={handleStatusChange}
                     />
                   </div>
@@ -410,6 +411,7 @@ export default function MultimediaPage() {
                       ticket={t}
                       userRole={userRole}
                       username={username}
+                      isMultimediaAdmin={isMultimediaAdmin}
                       onStatusChange={handleStatusChange}
                     />
                   </div>
@@ -713,12 +715,12 @@ export default function MultimediaPage() {
 /**
  * Sliding Dropdown Menu for Ticket Status Updates
  */
-function TicketStatusDropdown({ ticket, userRole, username, onStatusChange }) {
+function TicketStatusDropdown({ ticket, userRole, username, isMultimediaAdmin, onStatusChange }) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Strict operator traceability check:
-  // ONLY the specific assigned operator (e.g. multimedia1) can change status. Not even admin!
-  const canChangeStatus = ticket.assignedTo && (ticket.assignedTo === username || ticket.assignedTo === userRole?.toLowerCase());
+  // Allowed if you are the specific assigned operator OR if you are a Multimedia Admin (Líder / Admin Total)
+  const canChangeStatus = isMultimediaAdmin || (ticket.assignedTo && (ticket.assignedTo === username || ticket.assignedTo === userRole?.toLowerCase()));
 
   const currentStatusLabel =
     ticket.status === 'COMPLETED'
