@@ -46,7 +46,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 name="username"
-                placeholder="Ej. jchasiguano"
+                placeholder="Ej. lopez1"
                 required
                 style={styles.input}
               />
