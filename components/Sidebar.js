@@ -44,6 +44,9 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     if (isPastoralAgendaAllowed) {
       navItems.push({ name: 'Agenda Pastoral (Personal)', href: '/agenda', icon: 'event' });
     }
+    if (userRole === 'ADMIN') {
+      navItems.push({ name: 'Gestión de Usuarios', href: '/usuarios', icon: 'manage_accounts' });
+    }
   }
 
   // Multimedia and Calendar Modules (Visible to Multimedia operators and others)

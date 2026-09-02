@@ -65,6 +65,13 @@ export function proxy(request) {
           return NextResponse.redirect(new URL('/multimedia', request.url));
         }
       }
+
+      // 5. User Management (/usuarios) is exclusive for Admin
+      if (pathname.startsWith('/usuarios')) {
+        if (session.role !== 'ADMIN') {
+          return NextResponse.redirect(new URL('/', request.url));
+        }
+      }
     }
   }
 

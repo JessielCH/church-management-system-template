@@ -6,14 +6,11 @@ async function main() {
   console.log('Seeding user accounts with exact usernames as names (no fake names)...');
 
   const usersToSeed = [
-    { username: 'pastor1', name: 'pastor1', role: 'PASTOR', pass: 'pastor1' },
-    { username: 'admin', name: 'admin', role: 'COORDINADOR', pass: 'admin123' },
-    { username: 'secretaria1', name: 'secretaria1', role: 'SECRETARIA', pass: 'secretaria1' },
-    { username: 'multimedia_admin', name: 'multimedia_admin', role: 'MULTIMEDIA', pass: 'multimedia_admin' },
-    { username: 'multimedia1', name: 'multimedia1', role: 'MULTIMEDIA', pass: 'multimedia1' },
-    { username: 'multimedia2', name: 'multimedia2', role: 'MULTIMEDIA', pass: 'multimedia2' },
-    { username: 'lider1', name: 'lider1', role: 'LEADER', pass: 'lider1' },
+    { username: 'jjadmin', name: 'Jessiel Chasiguano', role: 'ADMIN', pass: 'Admin123!' },
   ];
+
+  // Borrar todos los usuarios antiguos para que solo quede el admin
+  await prisma.user.deleteMany({});
 
   for (const u of usersToSeed) {
     const hash = bcrypt.hashSync(u.pass, 10);
