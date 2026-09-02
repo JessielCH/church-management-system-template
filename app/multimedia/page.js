@@ -268,26 +268,7 @@ export default function MultimediaPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
                       {isMultimediaAdmin ? (
-                        <select
-                          value={t.assignedTo || ''}
-                          onChange={(e) => handleAssignTicket(t.id, e.target.value)}
-                          style={{
-                            fontSize: '0.82rem',
-                            padding: '6px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--borde)',
-                            backgroundColor: '#ffffff',
-                            fontWeight: '600',
-                            color: t.assignedTo ? '#4338ca' : '#6b7280',
-                          }}
-                        >
-                          <option value="">Sin Asignar</option>
-                          {operators.map(op => (
-                            <option key={op.id} value={op.username}>
-                              {op.name} (@{op.username})
-                            </option>
-                          ))}
-                        </select>
+                        <TicketAssigner ticket={t} operators={operators} onAssign={handleAssignTicket} />
                       ) : (
                         <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
                           {t.assignedTo || 'Sin Asignar'}
@@ -391,26 +372,7 @@ export default function MultimediaPage() {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '0.82rem', color: '#4b5563', fontWeight: '600' }}>👤 Encargado:</span>
                       {isMultimediaAdmin ? (
-                        <select
-                          value={t.assignedTo || ''}
-                          onChange={(e) => handleAssignTicket(t.id, e.target.value)}
-                          style={{
-                            fontSize: '0.82rem',
-                            padding: '6px 12px',
-                            borderRadius: '8px',
-                            border: '1px solid var(--borde)',
-                            backgroundColor: '#ffffff',
-                            fontWeight: '600',
-                            color: t.assignedTo ? '#4338ca' : '#6b7280',
-                          }}
-                        >
-                          <option value="">Sin Asignar</option>
-                          {operators.map(op => (
-                            <option key={op.id} value={op.username}>
-                              {op.name} (@{op.username})
-                            </option>
-                          ))}
-                        </select>
+                        <TicketAssigner ticket={t} operators={operators} onAssign={handleAssignTicket} />
                       ) : (
                         <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
                           {t.assignedTo || 'Sin Asignar'}
@@ -719,6 +681,73 @@ export default function MultimediaPage() {
             </form>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+function TicketAssigner({ ticket, operators, onAssign }) {
+  const [selectedOp, setSelectedOp] = useState(ticket.assignedTo || '');
+  const [isSaving, setIsSaving] = useState(false);
+
+  // Sync state if ticket prop updates from parent
+  useEffect(() => {
+    setSelectedOp(ticket.assignedTo || '');
+  }, [ticket.assignedTo]);
+
+  const handleSave = async () => {
+    setIsSaving(true);
+    await onAssign(ticket.id, selectedOp);
+    setIsSaving(false);
+  };
+
+  const hasChanged = selectedOp !== (ticket.assignedTo || '');
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+      <select
+        value={selectedOp}
+        onChange={(e) => setSelectedOp(e.target.value)}
+        style={{
+          fontSize: '0.82rem',
+          padding: '6px 12px',
+          borderRadius: '8px',
+          border: '1px solid var(--borde)',
+          backgroundColor: '#ffffff',
+          fontWeight: '600',
+          color: selectedOp ? '#4338ca' : '#6b7280',
+        }}
+      >
+        <option value="">Sin Asignar</option>
+        {operators.map(op => (
+          <option key={op.id} value={op.username}>
+            {op.name}
+          </option>
+        ))}
+      </select>
+      
+      {hasChanged && (
+        <button 
+          onClick={handleSave} 
+          disabled={isSaving}
+          className="action-btn"
+          style={{
+            padding: '6px 12px',
+            borderRadius: '8px',
+            border: 'none',
+            backgroundColor: '#4338ca',
+            color: 'white',
+            fontSize: '0.78rem',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+            height: 'auto'
+          }}
+        >
+          {isSaving ? 'Guardando...' : 'Asignar'}
+        </button>
       )}
     </div>
   );
