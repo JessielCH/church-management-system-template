@@ -1,11 +1,12 @@
 'use client';
 
-import { useActionState, useEffect } from 'react';
+import { useState, useActionState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { loginAction } from '@/app/actions/authActions';
 
 export default function LoginPage() {
+  const [showPassword, setShowPassword] = useState(false);
   const [state, formAction, isPending] = useActionState(loginAction, null);
   const router = useRouter();
 
@@ -39,13 +40,13 @@ export default function LoginPage() {
 
         <form action={formAction} style={styles.form}>
           <div style={styles.fieldGroup}>
-            <label style={styles.label}>Nombre de Usuario (Username)</label>
+            <label style={styles.label}>Nombre de Usuario</label>
             <div style={styles.inputWrapper}>
               <span className="material-symbols-outlined" style={styles.inputIcon}>person</span>
               <input
                 type="text"
                 name="username"
-                placeholder="Ej. pastor1 o multimedia1"
+                placeholder="Ej. jchasiguano"
                 required
                 style={styles.input}
               />
@@ -57,12 +58,31 @@ export default function LoginPage() {
             <div style={styles.inputWrapper}>
               <span className="material-symbols-outlined" style={styles.inputIcon}>lock</span>
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 name="password"
                 placeholder="••••••••"
                 required
                 style={styles.input}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '12px',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  color: '#6b7280',
+                  display: 'flex',
+                  alignItems: 'center',
+                  padding: 0
+                }}
+              >
+                <span className="material-symbols-outlined" style={{ fontSize: '20px' }}>
+                  {showPassword ? 'visibility_off' : 'visibility'}
+                </span>
+              </button>
             </div>
           </div>
 
