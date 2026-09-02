@@ -72,6 +72,15 @@ export function proxy(request) {
           return NextResponse.redirect(new URL('/', request.url));
         }
       }
+
+      // 6. IT Admin restriction
+      // If they are admin, they can ONLY access /usuarios, /configuracion, and /change-password
+      if (session.role === 'ADMIN') {
+        const allowedAdminPaths = ['/usuarios', '/configuracion', '/change-password'];
+        if (!allowedAdminPaths.some(p => pathname.startsWith(p))) {
+          return NextResponse.redirect(new URL('/usuarios', request.url));
+        }
+      }
     }
   }
 

@@ -35,8 +35,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
 
   const navItems = [];
 
-  // General modules NOT for Multimedia operators
-  if (!isMultimediaOnly) {
+  // General modules NOT for Multimedia operators and NOT for IT Admin
+  if (!isMultimediaOnly && userRole !== 'ADMIN') {
     navItems.push({ name: 'Dashboard', href: '/', icon: 'dashboard' });
     navItems.push({ name: 'Membresía', href: '/membresia', icon: 'group' });
     navItems.push({ name: 'Evangelismo', href: '/evangelismo', icon: 'campaign' });
@@ -44,17 +44,21 @@ export default function Sidebar({ isCollapsed, isMobileOpen, onCloseMobile }) {
     if (isPastoralAgendaAllowed) {
       navItems.push({ name: 'Agenda Pastoral (Personal)', href: '/agenda', icon: 'event' });
     }
-    if (userRole === 'ADMIN') {
-      navItems.push({ name: 'Gestión de Usuarios', href: '/usuarios', icon: 'manage_accounts' });
-    }
   }
 
-  // Multimedia and Calendar Modules (Visible to Multimedia operators and others)
-  navItems.push({ name: 'Multimedia', href: '/multimedia', icon: 'video_settings' });
-  navItems.push({ name: 'Calendario Eventos IEBB', href: '/calendario', icon: 'calendar_month' });
+  // Admin Module
+  if (userRole === 'ADMIN') {
+    navItems.push({ name: 'Gestión de Usuarios', href: '/usuarios', icon: 'manage_accounts' });
+  }
 
-  // Reportes NOT for Multimedia operators
-  if (!isMultimediaOnly) {
+  // Multimedia and Calendar Modules (Visible to Multimedia operators and others, NOT for IT Admin)
+  if (userRole !== 'ADMIN') {
+    navItems.push({ name: 'Multimedia', href: '/multimedia', icon: 'video_settings' });
+    navItems.push({ name: 'Calendario Eventos IEBB', href: '/calendario', icon: 'calendar_month' });
+  }
+
+  // Reportes NOT for Multimedia operators and NOT for IT Admin
+  if (!isMultimediaOnly && userRole !== 'ADMIN') {
     navItems.push({ name: 'Reportes', href: '/reportes', icon: 'monitoring' });
   }
 
