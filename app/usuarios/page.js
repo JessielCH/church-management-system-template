@@ -88,20 +88,35 @@ export default function UsuariosPage() {
     }
   };
 
-  const handleResetPassword = async (userId) => {
+  const handleResetPassword = async (targetUser) => {
     const upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const lower = 'abcdefghijklmnopqrstuvwxyz';
     const nums = '0123456789';
     let newPass = upper[0] + lower[0] + nums[0] + Math.random().toString(36).slice(-5);
     
-    if (window.confirm(`¿Estás seguro de restablecer la contraseña? Se generará una nueva y el usuario será forzado a cambiarla.`)) {
-      const res = await resetPasswordAction(userId, newPass);
+    if (window.confirm(`¿Estás seguro de restablecer la contraseña para ${targetUser.name}? Se generará una nueva y será forzado a cambiarla.`)) {
+      const res = await resetPasswordAction(targetUser.id, newPass);
       if (res.success) {
-        alert(`Contraseña restablecida con éxito.\nNueva contraseña temporal: ${newPass}`);
+        setShowPasswordDetails({
+          name: targetUser.name,
+          username: targetUser.username,
+          password: newPass,
+          isReset: true
+        });
       } else {
         alert(res.error || 'Error al restablecer.');
       }
     }
+  };
+
+  const copyToClipboard = () => {
+    if (!showPasswordDetails) return;
+    const textToCopy = `¡Hola ${showPasswordDetails.name}!\n\nTus credenciales de acceso para el sistema IEBB son:\nUsuario: ${showPasswordDetails.username}\nContraseña Temporal: ${showPasswordDetails.password}\n\nPor favor, inicia sesión para cambiarla.`;
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      alert('¡Credenciales copiadas al portapapeles! Ya puedes pegarlas en WhatsApp.');
+    }).catch(err => {
+      alert('No se pudo copiar automáticamente. Por favor copia el texto manualmente.');
+    });
   };
 
   return (
@@ -130,14 +145,20 @@ export default function UsuariosPage() {
       {showPasswordDetails && (
         <div style={{ padding: '20px', backgroundColor: '#ecfdf5', border: '1px solid #10b981', color: '#047857', borderRadius: '12px', marginBottom: '24px' }}>
           <h3 style={{ margin: '0 0 10px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span className="material-symbols-outlined">check_circle</span>
-            Usuario Creado Exitosamente
+            <span className="material-symbols-outlined">{showPasswordDetails.isReset ? 'key' : 'check_circle'}</span>
+            {showPasswordDetails.isReset ? 'Contraseña Restablecida Exitosamente' : 'Usuario Creado Exitosamente'}
           </h3>
           <p style={{ margin: '4px 0' }}><strong>Nombre:</strong> {showPasswordDetails.name}</p>
           <p style={{ margin: '4px 0' }}><strong>Usuario:</strong> {showPasswordDetails.username}</p>
           <p style={{ margin: '4px 0', fontSize: '1.2rem' }}><strong>Contraseña Temporal:</strong> <code style={{ backgroundColor: '#fff', padding: '4px 8px', borderRadius: '4px', border: '1px solid #a7f3d0' }}>{showPasswordDetails.password}</code></p>
           <p style={{ margin: '12px 0 0', fontSize: '0.9rem' }}><em>* Por favor copia esta contraseña y entrégasela al usuario. El sistema le pedirá cambiarla en su primer inicio de sesión.</em></p>
-          <button className="secondary-button" style={{ marginTop: '16px' }} onClick={() => setShowPasswordDetails(null)}>Cerrar Mensaje</button>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+            <button className="primary-button" style={{ backgroundColor: '#10b981' }} onClick={copyToClipboard}>
+              <span className="material-symbols-outlined">content_copy</span>
+              Copiar para WhatsApp
+            </button>
+            <button className="secondary-button" onClick={() => setShowPasswordDetails(null)}>Cerrar Mensaje</button>
+          </div>
         </div>
       )}
 
@@ -204,7 +225,7 @@ export default function UsuariosPage() {
                 <div style={{ display: 'flex', gap: '6px' }}>
                   <button
                     className="action-btn"
-                    onClick={() => handleResetPassword(user.id)}
+                    onClick={() => handleResetPassword(user)}
                     title="Restablecer Contraseña"
                     style={{ color: '#047857', borderColor: '#d1fae5', backgroundColor: '#d1fae5' }}
                   >
