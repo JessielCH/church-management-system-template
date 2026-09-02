@@ -174,6 +174,34 @@ export async function deleteTicketAction(id) {
     return { success: true };
   } catch (err) {
     console.error('Error deleting ticket:', err);
-    return { error: 'Error al eliminar el ticket.' };
+    return { error: 'Error al eliminar ticket o petición.' };
+  }
+}
+
+export async function getMultimediaOperatorsAction() {
+  const session = await getSession();
+  if (!session) return { error: 'No autorizado' };
+
+  try {
+    const operators = await prisma.user.findMany({
+      where: {
+        role: {
+          in: ['MULTIMEDIA', 'MULTIMEDIA_LEADER']
+        }
+      },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        role: true
+      },
+      orderBy: {
+        name: 'asc'
+      }
+    });
+    return { success: true, operators };
+  } catch (err) {
+    console.error('Error fetching operators:', err);
+    return { error: 'Error al cargar los operadores' };
   }
 }

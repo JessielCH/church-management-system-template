@@ -9,6 +9,7 @@ import {
   assignTicketAction,
   updateTicketAction,
   deleteTicketAction,
+  getMultimediaOperatorsAction,
 } from '@/app/actions/ticketActions';
 import { getSession } from '@/app/actions/authActions';
 import ConfirmModal from '@/components/ConfirmModal';
@@ -22,6 +23,7 @@ export default function MultimediaPage() {
   const [userRole, setUserRole] = useState('');
   const [username, setUsername] = useState('');
   const [tickets, setTickets] = useState([]);
+  const [operators, setOperators] = useState([]);
 
   // Dates logic for Media Request (3 days before suggestion)
   const [activityDate, setActivityDate] = useState('');
@@ -46,6 +48,10 @@ export default function MultimediaPage() {
       const res = await getTicketsAction();
       if (res?.success) {
         setTickets(res.tickets || []);
+      }
+      const opsRes = await getMultimediaOperatorsAction();
+      if (opsRes?.success) {
+        setOperators(opsRes.operators || []);
       }
     }
     init();
@@ -276,8 +282,11 @@ export default function MultimediaPage() {
                           }}
                         >
                           <option value="">Sin Asignar</option>
-                          <option value="multimedia1">multimedia1 (Operador 1)</option>
-                          <option value="multimedia2">multimedia2 (Operador 2)</option>
+                          {operators.map(op => (
+                            <option key={op.id} value={op.username}>
+                              {op.name} (@{op.username})
+                            </option>
+                          ))}
                         </select>
                       ) : (
                         <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
@@ -396,8 +405,11 @@ export default function MultimediaPage() {
                           }}
                         >
                           <option value="">Sin Asignar</option>
-                          <option value="multimedia1">multimedia1 (Operador 1)</option>
-                          <option value="multimedia2">multimedia2 (Operador 2)</option>
+                          {operators.map(op => (
+                            <option key={op.id} value={op.username}>
+                              {op.name} (@{op.username})
+                            </option>
+                          ))}
                         </select>
                       ) : (
                         <span style={{ fontSize: '0.82rem', fontWeight: '700', color: t.assignedTo ? '#4338ca' : '#9ca3af' }}>
