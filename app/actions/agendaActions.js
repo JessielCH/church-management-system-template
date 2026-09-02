@@ -69,7 +69,7 @@ export async function createEventAction(prevState, formData) {
 
     revalidatePath('/agenda');
     revalidatePath('/');
-    return { success: true, event: newEvent, whatsappReminders };
+    return { success: true, event: { id: newEvent.id, title: newEvent.title }, whatsappReminders };
   } catch (err) {
     console.error('Error creating agenda event:', err);
     return { error: 'Error al registrar el evento.' };
@@ -107,7 +107,7 @@ export async function updateEventAction(prevState, formData) {
 
     revalidatePath('/agenda');
     revalidatePath('/');
-    return { success: true, event: updated };
+    return { success: true, event: { id: updated.id, title: updated.title } };
   } catch (err) {
     console.error('Error updating event:', err);
     return { error: 'Error al actualizar el evento.' };

@@ -44,7 +44,7 @@ export async function createWorshipTicketAction(prevState, formData) {
     });
 
     revalidatePath('/multimedia');
-    return { success: true, ticket: newTicket };
+    return { success: true, ticket: { id: newTicket.id, title: newTicket.title } };
   } catch (err) {
     console.error('Error creating worship ticket:', err);
     return { success: true };
@@ -80,7 +80,7 @@ export async function createMediaRequestAction(prevState, formData) {
     });
 
     revalidatePath('/multimedia');
-    return { success: true, ticket: newTicket };
+    return { success: true, ticket: { id: newTicket.id, title: newTicket.title } };
   } catch (err) {
     console.error('Error creating media request:', err);
     return { success: true };
@@ -148,7 +148,7 @@ export async function updateTicketAction(prevState, formData) {
     });
 
     revalidatePath('/multimedia');
-    return { success: true, ticket: updated };
+    return { success: true, ticket: { id: updated.id, title: updated.title } };
   } catch (err) {
     console.error('Error updating ticket:', err);
     return { error: 'Error al actualizar el ticket.' };

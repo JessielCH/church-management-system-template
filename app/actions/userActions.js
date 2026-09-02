@@ -81,7 +81,11 @@ export async function createUserAction(prevState, formData) {
     });
 
     revalidatePath('/usuarios');
-    return { success: true, user: newUser, generatedPassword: password };
+    return { 
+      success: true, 
+      user: { name: newUser.name, username: newUser.username }, 
+      generatedPassword: password 
+    };
   } catch (error) {
     return { success: false, error: error.message || 'Error al crear usuario.' };
   }
