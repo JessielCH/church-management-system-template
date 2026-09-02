@@ -38,14 +38,34 @@ export async function createEventAction(prevState, formData) {
   }
 
   try {
+    const eventDate = new Date(dateRaw);
     const newEvent = await prisma.event.create({
       data: {
         title,
-        date: new Date(dateRaw),
+        date: eventDate,
         location,
         type,
       },
     });
+
+    if (whatsappReminders && whatsappReminders.length > 0 && !whatsappReminders.includes('NONE')) {
+      const remindersData = whatsappReminders.map((reminderType) => {
+        let scheduledFor = new Date(eventDate);
+        if (reminderType === '1_HOUR') scheduledFor.setHours(scheduledFor.getHours() - 1);
+        else if (reminderType === '1_DAY') scheduledFor.setDate(scheduledFor.getDate() - 1);
+        else if (reminderType === '1_WEEK') scheduledFor.setDate(scheduledFor.getDate() - 7);
+        
+        return {
+          eventId: newEvent.id,
+          type: reminderType,
+          scheduledFor,
+        };
+      });
+
+      await prisma.eventReminder.createMany({
+        data: remindersData,
+      });
+    }
 
     revalidatePath('/agenda');
     revalidatePath('/');

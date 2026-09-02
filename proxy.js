@@ -37,6 +37,11 @@ export function proxy(request) {
   }
 
   if (session) {
+    // 3. Enforce password change on first login
+    if (session.mustChangePassword && pathname !== '/change-password') {
+      return NextResponse.redirect(new URL('/change-password', request.url));
+    }
+
     const isMultimediaOnly =
       session.role === 'MULTIMEDIA' ||
       session.role === 'LEADER' ||

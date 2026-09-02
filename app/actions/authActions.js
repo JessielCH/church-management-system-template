@@ -77,7 +77,7 @@ export async function loginAction(prevState, formData) {
     username: user.username,
     name: user.name,
     role: user.role,
-    mustChangePassword: false,
+    mustChangePassword: user.mustChangePassword,
   };
 
   const cookieStore = await cookies();
