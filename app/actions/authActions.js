@@ -104,6 +104,14 @@ export async function updatePasswordAction(prevState, formData) {
     return { error: 'La nueva contraseña debe contener al menos un número.' };
   }
 
+  if (!/[A-Z]/.test(newPassword)) {
+    return { error: 'La nueva contraseña debe contener al menos una letra mayúscula.' };
+  }
+
+  if (!/[a-z]/.test(newPassword)) {
+    return { error: 'La nueva contraseña debe contener al menos una letra minúscula.' };
+  }
+
   if (newPassword !== confirmPassword) {
     return { error: 'Las contraseñas no coinciden.' };
   }

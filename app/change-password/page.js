@@ -45,7 +45,7 @@ export default function ChangePasswordPage() {
               <input
                 type="password"
                 name="newPassword"
-                placeholder="6 a 12 caracteres, incl. número"
+                placeholder="Ej: Aa1... (6-12 caracteres)"
                 required
                 minLength={6}
                 maxLength={12}
