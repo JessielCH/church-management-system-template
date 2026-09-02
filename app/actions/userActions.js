@@ -33,7 +33,7 @@ export async function getUsersAction() {
   }
 }
 
-export async function createUserAction(formData) {
+export async function createUserAction(prevState, formData) {
   await verifyAdmin();
   try {
     const name = formData.get('name');
@@ -87,7 +87,7 @@ export async function createUserAction(formData) {
   }
 }
 
-export async function updateUserAction(formData) {
+export async function updateUserAction(prevState, formData) {
   await verifyAdmin();
   try {
     const id = formData.get('id');
