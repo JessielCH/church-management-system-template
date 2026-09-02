@@ -96,8 +96,12 @@ export async function updatePasswordAction(prevState, formData) {
   const newPassword = formData.get('newPassword')?.toString();
   const confirmPassword = formData.get('confirmPassword')?.toString();
 
-  if (!newPassword || newPassword.length < 6) {
-    return { error: 'La nueva contraseña debe tener al menos 6 caracteres.' };
+  if (!newPassword || newPassword.length < 6 || newPassword.length > 12) {
+    return { error: 'La nueva contraseña debe tener entre 6 y 12 caracteres.' };
+  }
+
+  if (!/\d/.test(newPassword)) {
+    return { error: 'La nueva contraseña debe contener al menos un número.' };
   }
 
   if (newPassword !== confirmPassword) {

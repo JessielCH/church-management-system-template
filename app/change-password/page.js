@@ -45,9 +45,10 @@ export default function ChangePasswordPage() {
               <input
                 type="password"
                 name="newPassword"
-                placeholder="Mínimo 6 caracteres"
+                placeholder="6 a 12 caracteres, incl. número"
                 required
                 minLength={6}
+                maxLength={12}
                 style={styles.input}
               />
             </div>
@@ -63,6 +64,7 @@ export default function ChangePasswordPage() {
                 placeholder="Repite la nueva contraseña"
                 required
                 minLength={6}
+                maxLength={12}
                 style={styles.input}
               />
             </div>

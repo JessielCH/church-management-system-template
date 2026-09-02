@@ -23,14 +23,14 @@ async function main() {
         passwordHash: hash,
         role: u.role,
         name: u.name,
-        mustChangePassword: false,
+        mustChangePassword: true,
       },
       create: {
         username: u.username,
         name: u.name,
         passwordHash: hash,
         role: u.role,
-        mustChangePassword: false,
+        mustChangePassword: true,
       },
     });
   }
