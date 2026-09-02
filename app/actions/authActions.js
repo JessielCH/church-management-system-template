@@ -10,7 +10,7 @@ function comparePassword(password, hash) {
   if (hash.startsWith('$2a$') || hash.startsWith('$2b$')) {
     return bcrypt.compareSync(password, hash);
   }
-  return password === hash || password === 'admin123' || password === 'pastor1' || password === 'secretaria1' || password === 'multimedia1' || password === 'lider1';
+  return password === hash;
 }
 
 export async function loginAction(prevState, formData) {
@@ -31,38 +31,8 @@ export async function loginAction(prevState, formData) {
     console.warn('Database connection warning in loginAction:', dbErr.message);
   }
 
-  // Dev fallbacks for quick testing if database is offline
   if (!user) {
-    const mockUsers = {
-      admin: { name: 'admin', role: 'COORDINADOR', pass: 'admin123' },
-      pastor1: { name: 'pastor1', role: 'PASTOR', pass: 'pastor1' },
-      secretaria1: { name: 'secretaria1', role: 'SECRETARIA', pass: 'secretaria1' },
-      multimedia1: { name: 'multimedia1', role: 'MULTIMEDIA', pass: 'multimedia1' },
-      lider1: { name: 'lider1', role: 'LEADER', pass: 'lider1' },
-    };
-
-    const mock = mockUsers[username];
-    if (mock && password === mock.pass) {
-      const sessionData = {
-        id: `mock-${username}`,
-        username,
-        name: mock.name,
-        role: mock.role,
-        mustChangePassword: false,
-      };
-
-      const cookieStore = await cookies();
-      cookieStore.set('auth_session', JSON.stringify(sessionData), {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 24,
-      });
-
-      return { success: true, redirectTo: '/' };
-    } else {
-      return { error: 'Nombre de usuario o contraseña incorrectos.' };
-    }
+    return { error: 'Nombre de usuario o contraseña incorrectos.' };
   }
 
   // Validate password against DB user using bcrypt
